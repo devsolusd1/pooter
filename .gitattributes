@@ -1,0 +1,4 @@
+# keep LF everywhere: the shell scripts run in WSL
+* text=auto eol=lf
+*.png binary
+*.jpg binary

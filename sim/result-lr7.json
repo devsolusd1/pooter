@@ -1,0 +1,1324 @@
+{
+ "lrShift": 7,
+ "endTs": "2026-10-15T21:20:00.000Z",
+ "pools": [
+  {
+   "name": "MONKEY",
+   "dex": "meteora-dbc",
+   "addr": "51DVe3KHqKMxYKPT5kEUNqv1VWGvRSKZf7c39zLxHrir",
+   "from": "2026-10-13T21:40:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 2,
+   "bars": 287,
+   "barsWithTrades": 4,
+   "raw5m": 6,
+   "volQuoteTotal": 21.46,
+   "tasks": {
+    "direction": {
+     "n": 0,
+     "acc": null,
+     "accAllBars": null,
+     "nAllBars": 0,
+     "upShare": null,
+     "majority": null,
+     "rules": {
+      "persistence": {
+       "n": 0,
+       "acc": null
+      },
+      "reversal": {
+       "n": 0,
+       "acc": null
+      }
+     },
+     "band": null,
+     "fixedFloatAgree": 1,
+     "firstHalf": null,
+     "secondHalf": null
+    },
+    "activity": {
+     "n": 0,
+     "acc": null,
+     "accAllBars": null,
+     "nAllBars": 0,
+     "upShare": null,
+     "majority": null,
+     "rules": {
+      "persistence": {
+       "n": 0,
+       "acc": null
+      },
+      "reversal": {
+       "n": 0,
+       "acc": null
+      },
+      "belowLevel": {
+       "n": 0,
+       "acc": null
+      }
+     },
+     "band": null,
+     "fixedFloatAgree": 1,
+     "firstHalf": null,
+     "secondHalf": null
+    },
+    "bigmove": {
+     "n": 0,
+     "acc": null,
+     "accAllBars": null,
+     "nAllBars": 0,
+     "upShare": null,
+     "majority": null,
+     "rules": {
+      "persistence": {
+       "n": 0,
+       "acc": null
+      }
+     },
+     "band": null,
+     "fixedFloatAgree": 1,
+     "firstHalf": null,
+     "secondHalf": null
+    }
+   },
+   "buyback": null
+  },
+  {
+   "name": "HAMSTER",
+   "dex": "meteora-dbc",
+   "addr": "9yS6kearLBYAKeXoPr8adHirSa2mwUT86PkPgRrMkDqN",
+   "from": "2026-10-02T19:40:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 13.1,
+   "bars": 1883,
+   "barsWithTrades": 1863,
+   "raw5m": 3537,
+   "volQuoteTotal": 135816.23,
+   "tasks": {
+    "direction": {
+     "n": 1712,
+     "acc": 0.5327,
+     "accAllBars": 0.5327,
+     "nAllBars": 1712,
+     "upShare": 0.5012,
+     "majority": 0.5012,
+     "rules": {
+      "persistence": {
+       "n": 1712,
+       "acc": 0.4883
+      },
+      "reversal": {
+       "n": 1712,
+       "acc": 0.5117
+      }
+     },
+     "band": 0.0237,
+     "fixedFloatAgree": 0.9965,
+     "firstHalf": 0.5504,
+     "secondHalf": 0.5147
+    },
+    "activity": {
+     "n": 288,
+     "acc": 0.6389,
+     "accAllBars": 0.6642,
+     "nAllBars": 1727,
+     "upShare": 0.4549,
+     "majority": 0.5451,
+     "rules": {
+      "persistence": {
+       "n": 288,
+       "acc": 0.4306
+      },
+      "reversal": {
+       "n": 288,
+       "acc": 0.5694
+      },
+      "belowLevel": {
+       "n": 288,
+       "acc": 0.6111
+      }
+     },
+     "band": 0.0577,
+     "fixedFloatAgree": 0.9994,
+     "firstHalf": 0.6181,
+     "secondHalf": 0.6597
+    },
+    "bigmove": {
+     "n": 288,
+     "acc": 0.5208,
+     "accAllBars": 0.502,
+     "nAllBars": 1727,
+     "upShare": 0.4826,
+     "majority": 0.5174,
+     "rules": {
+      "persistence": {
+       "n": 288,
+       "acc": 0.5
+      }
+     },
+     "band": 0.0577,
+     "fixedFloatAgree": 0.9988,
+     "firstHalf": 0.5694,
+     "secondHalf": 0.4722
+    }
+   },
+   "buyback": {
+    "vwap": 0.00000763653242148357,
+    "twap": 0.000007851747948854515,
+    "accrued": 651.5714704589416,
+    "unconditionalDrop1h": 0.5234510712217718,
+    "even": {
+     "buys": 289,
+     "spentShare": 0.9999,
+     "avgBuyVsVWAP": -0.0029,
+     "avgBuyVsTWAP": -0.0302,
+     "avgBuy": 0.000007614665587286439,
+     "dropAfter1h": 0.5808,
+     "dropAfter10m": 0.4827,
+     "maxBuy": 34.6144,
+     "maxBuyHours": 15.34
+    },
+    "modelDown": {
+     "buys": 903,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0241,
+     "avgBuyVsTWAP": -0.004,
+     "avgBuy": 0.000007820314101454808,
+     "dropAfter1h": 0.5747,
+     "dropAfter10m": 0.5594,
+     "maxBuy": 26.8604,
+     "maxBuyHours": 11.91,
+     "pushFlipsToBuy": 0.6509,
+     "avgBuyVsEven": 0.027
+    },
+    "quietMore": {
+     "buys": 289,
+     "spentShare": 0.9989,
+     "avgBuyVsVWAP": -0.0019,
+     "avgBuyVsTWAP": -0.0293,
+     "avgBuy": 0.0000076219919782598176,
+     "dropAfter1h": 0.5852,
+     "dropAfter10m": 0.4792,
+     "maxBuy": 34.6144,
+     "maxBuyHours": 15.34,
+     "pushFlipsToBuy": 0.6635,
+     "avgBuyVsEven": 0.001
+    },
+    "afterDrop": {
+     "buys": 433,
+     "spentShare": 0.9979,
+     "avgBuyVsVWAP": -0.0408,
+     "avgBuyVsTWAP": -0.0671,
+     "avgBuy": 0.000007324745379228493,
+     "dropAfter1h": 0.5519,
+     "dropAfter10m": 0.2829,
+     "maxBuy": 95.3355,
+     "maxBuyHours": 42.26,
+     "pushFlipsToBuy": 0.1148,
+     "avgBuyVsEven": -0.0381
+    },
+    "drip": {
+     "buys": 289,
+     "spentShare": 0.9977,
+     "avgBuyVsVWAP": -0.0366,
+     "avgBuyVsTWAP": -0.063,
+     "avgBuy": 0.000007357407711065832,
+     "dropAfter1h": 0.5414,
+     "dropAfter10m": 0.5006,
+     "maxBuy": 10.2912,
+     "maxBuyHours": 4.56,
+     "avgBuyVsEven": -0.0338
+    },
+    "dripQuiet": {
+     "buys": 289,
+     "spentShare": 0.9967,
+     "avgBuyVsVWAP": -0.0251,
+     "avgBuyVsTWAP": -0.0518,
+     "avgBuy": 0.000007444780333820472,
+     "dropAfter1h": 0.5513,
+     "dropAfter10m": 0.5046,
+     "maxBuy": 12.844,
+     "maxBuyHours": 5.69,
+     "avgBuyVsEven": -0.0223
+    },
+    "dripDrop": {
+     "buys": 289,
+     "spentShare": 0.9966,
+     "avgBuyVsVWAP": -0.0455,
+     "avgBuyVsTWAP": -0.0717,
+     "avgBuy": 0.000007288797837280586,
+     "dropAfter1h": 0.5398,
+     "dropAfter10m": 0.4698,
+     "maxBuy": 21.7926,
+     "maxBuyHours": 9.66,
+     "avgBuyVsEven": -0.0428
+    }
+   }
+  },
+  {
+   "name": "FOMO",
+   "dex": "meteora-dbc",
+   "addr": "6tdNjDNFzDdEuKyyvtKtke4Zuarp3MyZwCiERwTsq5Xg",
+   "from": "2026-10-01T16:10:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 14.2,
+   "bars": 2048,
+   "barsWithTrades": 1943,
+   "raw5m": 3529,
+   "volQuoteTotal": 121284.84,
+   "tasks": {
+    "direction": {
+     "n": 1792,
+     "acc": 0.5117,
+     "accAllBars": 0.5117,
+     "nAllBars": 1792,
+     "upShare": 0.4978,
+     "majority": 0.5022,
+     "rules": {
+      "persistence": {
+       "n": 1792,
+       "acc": 0.5156
+      },
+      "reversal": {
+       "n": 1792,
+       "acc": 0.4844
+      }
+     },
+     "band": 0.0232,
+     "fixedFloatAgree": 0.9989,
+     "firstHalf": 0.532,
+     "secondHalf": 0.4895
+    },
+    "activity": {
+     "n": 315,
+     "acc": 0.6127,
+     "accAllBars": 0.6422,
+     "nAllBars": 1892,
+     "upShare": 0.4762,
+     "majority": 0.5238,
+     "rules": {
+      "persistence": {
+       "n": 315,
+       "acc": 0.3905
+      },
+      "reversal": {
+       "n": 315,
+       "acc": 0.6095
+      },
+      "belowLevel": {
+       "n": 315,
+       "acc": 0.6603
+      }
+     },
+     "band": 0.0552,
+     "fixedFloatAgree": 0.9995,
+     "firstHalf": 0.6115,
+     "secondHalf": 0.6139
+    },
+    "bigmove": {
+     "n": 315,
+     "acc": 0.5111,
+     "accAllBars": 0.527,
+     "nAllBars": 1892,
+     "upShare": 0.4794,
+     "majority": 0.5206,
+     "rules": {
+      "persistence": {
+       "n": 315,
+       "acc": 0.5619
+      }
+     },
+     "band": 0.0552,
+     "fixedFloatAgree": 0.9995,
+     "firstHalf": 0.5032,
+     "secondHalf": 0.519
+    }
+   },
+   "buyback": {
+    "vwap": 0.000004865655285625774,
+    "twap": 0.000003780548927320646,
+    "accrued": 495.75566264553,
+    "unconditionalDrop1h": 0.5221987315010571,
+    "even": {
+     "buys": 316,
+     "spentShare": 1,
+     "avgBuyVsVWAP": -0.0179,
+     "avgBuyVsTWAP": 0.264,
+     "avgBuy": 0.000004778690408160927,
+     "dropAfter1h": 0.6213,
+     "dropAfter10m": 0.5852,
+     "maxBuy": 36.1506,
+     "maxBuyHours": 23.07
+    },
+    "modelDown": {
+     "buys": 1133,
+     "spentShare": 0.9992,
+     "avgBuyVsVWAP": 0.0498,
+     "avgBuyVsTWAP": 0.3511,
+     "avgBuy": 0.000005108054835219951,
+     "dropAfter1h": 0.639,
+     "dropAfter10m": 0.601,
+     "maxBuy": 22.6631,
+     "maxBuyHours": 14.46,
+     "pushFlipsToBuy": 0.669,
+     "avgBuyVsEven": 0.0689
+    },
+    "quietMore": {
+     "buys": 316,
+     "spentShare": 1,
+     "avgBuyVsVWAP": -0.0175,
+     "avgBuyVsTWAP": 0.2645,
+     "avgBuy": 0.000004780413760863517,
+     "dropAfter1h": 0.6536,
+     "dropAfter10m": 0.6001,
+     "maxBuy": 36.1506,
+     "maxBuyHours": 23.07,
+     "pushFlipsToBuy": 0.6293,
+     "avgBuyVsEven": 0.0004
+    },
+    "afterDrop": {
+     "buys": 490,
+     "spentShare": 1,
+     "avgBuyVsVWAP": -0.0844,
+     "avgBuyVsTWAP": 0.1783,
+     "avgBuy": 0.00000445479612923744,
+     "dropAfter1h": 0.5979,
+     "dropAfter10m": 0.4464,
+     "maxBuy": 91.5502,
+     "maxBuyHours": 58.42,
+     "pushFlipsToBuy": 0.1387,
+     "avgBuyVsEven": -0.0678
+    },
+    "drip": {
+     "buys": 316,
+     "spentShare": 0.9971,
+     "avgBuyVsVWAP": -0.0874,
+     "avgBuyVsTWAP": 0.1745,
+     "avgBuy": 0.0000044403416919427725,
+     "dropAfter1h": 0.6013,
+     "dropAfter10m": 0.5057,
+     "maxBuy": 11.7062,
+     "maxBuyHours": 7.47,
+     "avgBuyVsEven": -0.0708
+    },
+    "dripQuiet": {
+     "buys": 316,
+     "spentShare": 0.9973,
+     "avgBuyVsVWAP": -0.0741,
+     "avgBuyVsTWAP": 0.1916,
+     "avgBuy": 0.0000045048682929618275,
+     "dropAfter1h": 0.6426,
+     "dropAfter10m": 0.5205,
+     "maxBuy": 17.2686,
+     "maxBuyHours": 11.02,
+     "avgBuyVsEven": -0.0573
+    },
+    "dripDrop": {
+     "buys": 316,
+     "spentShare": 0.9973,
+     "avgBuyVsVWAP": -0.1109,
+     "avgBuyVsTWAP": 0.1443,
+     "avgBuy": 0.000004326252262343839,
+     "dropAfter1h": 0.5951,
+     "dropAfter10m": 0.4671,
+     "maxBuy": 12.0399,
+     "maxBuyHours": 7.68,
+     "avgBuyVsEven": -0.0947
+    }
+   }
+  },
+  {
+   "name": "HOOKED",
+   "dex": "meteora-damm-v2",
+   "addr": "C7r9jXWiVYmBYR2Jj5YSLiEitUGJPjQXWeg7HPU8NwUk",
+   "from": "2026-09-28T20:00:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 17.1,
+   "bars": 2457,
+   "barsWithTrades": 2108,
+   "raw5m": 3566,
+   "volQuoteTotal": 151735.45,
+   "tasks": {
+    "direction": {
+     "n": 1957,
+     "acc": 0.5054,
+     "accAllBars": 0.5054,
+     "nAllBars": 1957,
+     "upShare": 0.4716,
+     "majority": 0.5284,
+     "rules": {
+      "persistence": {
+       "n": 1957,
+       "acc": 0.5733
+      },
+      "reversal": {
+       "n": 1957,
+       "acc": 0.4267
+      }
+     },
+     "band": 0.0222,
+     "fixedFloatAgree": 0.997,
+     "firstHalf": 0.5266,
+     "secondHalf": 0.4797
+    },
+    "activity": {
+     "n": 384,
+     "acc": 0.6615,
+     "accAllBars": 0.6558,
+     "nAllBars": 2301,
+     "upShare": 0.4688,
+     "majority": 0.5313,
+     "rules": {
+      "persistence": {
+       "n": 384,
+       "acc": 0.3828
+      },
+      "reversal": {
+       "n": 384,
+       "acc": 0.6172
+      },
+      "belowLevel": {
+       "n": 384,
+       "acc": 0.6536
+      }
+     },
+     "band": 0.05,
+     "fixedFloatAgree": 0.9991,
+     "firstHalf": 0.651,
+     "secondHalf": 0.6719
+    },
+    "bigmove": {
+     "n": 384,
+     "acc": 0.5443,
+     "accAllBars": 0.5445,
+     "nAllBars": 2301,
+     "upShare": 0.487,
+     "majority": 0.513,
+     "rules": {
+      "persistence": {
+       "n": 384,
+       "acc": 0.5365
+      }
+     },
+     "band": 0.05,
+     "fixedFloatAgree": 0.9974,
+     "firstHalf": 0.5677,
+     "secondHalf": 0.5208
+    }
+   },
+   "buyback": {
+    "vwap": 0.000030254785167537055,
+    "twap": 0.00005300734958703063,
+    "accrued": 1025.1738373130916,
+    "unconditionalDrop1h": 0.5510647544545849,
+    "even": {
+     "buys": 385,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0388,
+     "avgBuyVsTWAP": -0.4071,
+     "avgBuy": 0.000031429050617039355,
+     "dropAfter1h": 0.5016,
+     "dropAfter10m": 0.5894,
+     "maxBuy": 50.5529,
+     "maxBuyHours": 18.96
+    },
+    "modelDown": {
+     "buys": 1378,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0231,
+     "avgBuyVsTWAP": -0.4161,
+     "avgBuy": 0.000030952510765305563,
+     "dropAfter1h": 0.5474,
+     "dropAfter10m": 0.5758,
+     "maxBuy": 25.2982,
+     "maxBuyHours": 9.49,
+     "pushFlipsToBuy": 0.4832,
+     "avgBuyVsEven": -0.0152
+    },
+    "quietMore": {
+     "buys": 385,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0477,
+     "avgBuyVsTWAP": -0.402,
+     "avgBuy": 0.00003169709122082622,
+     "dropAfter1h": 0.4951,
+     "dropAfter10m": 0.5937,
+     "maxBuy": 50.5529,
+     "maxBuyHours": 18.96,
+     "pushFlipsToBuy": 0.5298,
+     "avgBuyVsEven": 0.0085
+    },
+    "afterDrop": {
+     "buys": 584,
+     "spentShare": 0.9993,
+     "avgBuyVsVWAP": 0.3467,
+     "avgBuyVsTWAP": -0.2314,
+     "avgBuy": 0.00004074289804935853,
+     "dropAfter1h": 0.4982,
+     "dropAfter10m": 0.5763,
+     "maxBuy": 145.2942,
+     "maxBuyHours": 54.49,
+     "pushFlipsToBuy": 0.269,
+     "avgBuyVsEven": 0.2963
+    },
+    "drip": {
+     "buys": 385,
+     "spentShare": 0.9963,
+     "avgBuyVsVWAP": 0.1045,
+     "avgBuyVsTWAP": -0.3696,
+     "avgBuy": 0.000033416990599304136,
+     "dropAfter1h": 0.5443,
+     "dropAfter10m": 0.54,
+     "maxBuy": 22.8243,
+     "maxBuyHours": 8.56,
+     "avgBuyVsEven": 0.0633
+    },
+    "dripQuiet": {
+     "buys": 385,
+     "spentShare": 0.9972,
+     "avgBuyVsVWAP": 0.0918,
+     "avgBuyVsTWAP": -0.3768,
+     "avgBuy": 0.000033033326523853725,
+     "dropAfter1h": 0.5289,
+     "dropAfter10m": 0.5495,
+     "maxBuy": 30.6631,
+     "maxBuyHours": 11.5,
+     "avgBuyVsEven": 0.051
+    },
+    "dripDrop": {
+     "buys": 385,
+     "spentShare": 0.9956,
+     "avgBuyVsVWAP": 0.1337,
+     "avgBuyVsTWAP": -0.3529,
+     "avgBuy": 0.000034299227916543994,
+     "dropAfter1h": 0.5561,
+     "dropAfter10m": 0.5536,
+     "maxBuy": 48.5211,
+     "maxBuyHours": 18.2,
+     "avgBuyVsEven": 0.0913
+    }
+   }
+  },
+  {
+   "name": "EMBER",
+   "dex": "meteora-damm-v2",
+   "addr": "2y6PCqa4fEp3jLiFdan9jVMw7LSK8F3gwsTfy8p7traE",
+   "from": "2026-09-17T21:20:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 28,
+   "bars": 4033,
+   "barsWithTrades": 4010,
+   "raw5m": 7986,
+   "volQuoteTotal": 36162744.12,
+   "tasks": {
+    "direction": {
+     "n": 3859,
+     "acc": 0.5118,
+     "accAllBars": 0.5118,
+     "nAllBars": 3859,
+     "upShare": 0.4838,
+     "majority": 0.5162,
+     "rules": {
+      "persistence": {
+       "n": 3859,
+       "acc": 0.5431
+      },
+      "reversal": {
+       "n": 3859,
+       "acc": 0.4569
+      }
+     },
+     "band": 0.0158,
+     "fixedFloatAgree": 0.9972,
+     "firstHalf": 0.4961,
+     "secondHalf": 0.5276
+    },
+    "activity": {
+     "n": 646,
+     "acc": 0.6192,
+     "accAllBars": 0.6229,
+     "nAllBars": 3877,
+     "upShare": 0.5,
+     "majority": 0.5,
+     "rules": {
+      "persistence": {
+       "n": 646,
+       "acc": 0.3808
+      },
+      "reversal": {
+       "n": 646,
+       "acc": 0.6192
+      },
+      "belowLevel": {
+       "n": 646,
+       "acc": 0.6331
+      }
+     },
+     "band": 0.0386,
+     "fixedFloatAgree": 0.9982,
+     "firstHalf": 0.5851,
+     "secondHalf": 0.6533
+    },
+    "bigmove": {
+     "n": 646,
+     "acc": 0.4892,
+     "accAllBars": 0.4955,
+     "nAllBars": 3877,
+     "upShare": 0.4892,
+     "majority": 0.5108,
+     "rules": {
+      "persistence": {
+       "n": 646,
+       "acc": 0.5387
+      }
+     },
+     "band": 0.0386,
+     "fixedFloatAgree": 0.9985,
+     "firstHalf": 0.5139,
+     "secondHalf": 0.4644
+    }
+   },
+   "buyback": {
+    "vwap": 0.02523692316143679,
+    "twap": 0.026184893266252413,
+    "accrued": 336863.6639805996,
+    "unconditionalDrop1h": 0.5372710858911529,
+    "even": {
+     "buys": 647,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.003,
+     "avgBuyVsTWAP": -0.0333,
+     "avgBuy": 0.0253138794353376,
+     "dropAfter1h": 0.5432,
+     "dropAfter10m": 0.5263,
+     "maxBuy": 11720.2934,
+     "maxBuyHours": 22.52
+    },
+    "modelDown": {
+     "buys": 3053,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0018,
+     "avgBuyVsTWAP": -0.0344,
+     "avgBuy": 0.02528323312507958,
+     "dropAfter1h": 0.5246,
+     "dropAfter10m": 0.4757,
+     "maxBuy": 5323.8061,
+     "maxBuyHours": 10.23,
+     "pushFlipsToBuy": 0.6373,
+     "avgBuyVsEven": -0.0012
+    },
+    "quietMore": {
+     "buys": 647,
+     "spentShare": 0.9994,
+     "avgBuyVsVWAP": 0.0032,
+     "avgBuyVsTWAP": -0.0331,
+     "avgBuy": 0.02531847787015717,
+     "dropAfter1h": 0.5401,
+     "dropAfter10m": 0.5183,
+     "maxBuy": 11720.2934,
+     "maxBuyHours": 22.52,
+     "pushFlipsToBuy": 0.7468,
+     "avgBuyVsEven": 0.0002
+    },
+    "afterDrop": {
+     "buys": 986,
+     "spentShare": 0.9995,
+     "avgBuyVsVWAP": -0.0035,
+     "avgBuyVsTWAP": -0.0396,
+     "avgBuy": 0.025148093837015672,
+     "dropAfter1h": 0.5236,
+     "dropAfter10m": 0.4553,
+     "maxBuy": 9296.8915,
+     "maxBuyHours": 17.86,
+     "pushFlipsToBuy": 0.5428,
+     "avgBuyVsEven": -0.0065
+    },
+    "drip": {
+     "buys": 647,
+     "spentShare": 0.9963,
+     "avgBuyVsVWAP": -0.0067,
+     "avgBuyVsTWAP": -0.0427,
+     "avgBuy": 0.025067703220906505,
+     "dropAfter1h": 0.5393,
+     "dropAfter10m": 0.5183,
+     "maxBuy": 2511.4583,
+     "maxBuyHours": 4.82,
+     "avgBuyVsEven": -0.0097
+    },
+    "dripQuiet": {
+     "buys": 647,
+     "spentShare": 0.9948,
+     "avgBuyVsVWAP": -0.0044,
+     "avgBuyVsTWAP": -0.0404,
+     "avgBuy": 0.025126404318537177,
+     "dropAfter1h": 0.5381,
+     "dropAfter10m": 0.5058,
+     "maxBuy": 3564.6247,
+     "maxBuyHours": 6.85,
+     "avgBuyVsEven": -0.0074
+    },
+    "dripDrop": {
+     "buys": 647,
+     "spentShare": 0.9947,
+     "avgBuyVsVWAP": -0.0063,
+     "avgBuyVsTWAP": -0.0423,
+     "avgBuy": 0.025077338295413226,
+     "dropAfter1h": 0.5289,
+     "dropAfter10m": 0.5199,
+     "maxBuy": 5462.1065,
+     "maxBuyHours": 10.49,
+     "avgBuyVsEven": -0.0093
+    }
+   }
+  },
+  {
+   "name": "JEANPHIL",
+   "dex": "pumpswap",
+   "addr": "4R8CiMnJWDNoes3fQi1ccPFJygPXazaHaWpHrN3rZeNj",
+   "from": "2026-09-19T19:00:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 26.1,
+   "bars": 3759,
+   "barsWithTrades": 3759,
+   "raw5m": 7509,
+   "volQuoteTotal": 693739.08,
+   "tasks": {
+    "direction": {
+     "n": 3608,
+     "acc": 0.5288,
+     "accAllBars": 0.5288,
+     "nAllBars": 3608,
+     "upShare": 0.4748,
+     "majority": 0.5252,
+     "rules": {
+      "persistence": {
+       "n": 3608,
+       "acc": 0.518
+      },
+      "reversal": {
+       "n": 3608,
+       "acc": 0.482
+      }
+     },
+     "band": 0.0163,
+     "fixedFloatAgree": 0.9986,
+     "firstHalf": 0.5338,
+     "secondHalf": 0.5238
+    },
+    "activity": {
+     "n": 601,
+     "acc": 0.6522,
+     "accAllBars": 0.632,
+     "nAllBars": 3603,
+     "upShare": 0.4725,
+     "majority": 0.5275,
+     "rules": {
+      "persistence": {
+       "n": 601,
+       "acc": 0.3894
+      },
+      "reversal": {
+       "n": 601,
+       "acc": 0.6106
+      },
+      "belowLevel": {
+       "n": 601,
+       "acc": 0.6423
+      }
+     },
+     "band": 0.04,
+     "fixedFloatAgree": 0.9981,
+     "firstHalf": 0.6333,
+     "secondHalf": 0.6711
+    },
+    "bigmove": {
+     "n": 601,
+     "acc": 0.5374,
+     "accAllBars": 0.5323,
+     "nAllBars": 3603,
+     "upShare": 0.4992,
+     "majority": 0.5008,
+     "rules": {
+      "persistence": {
+       "n": 601,
+       "acc": 0.5324
+      }
+     },
+     "band": 0.04,
+     "fixedFloatAgree": 0.9986,
+     "firstHalf": 0.4633,
+     "secondHalf": 0.6113
+    }
+   },
+   "buyback": {
+    "vwap": 0.00004168541939351319,
+    "twap": 0.00004997394929704975,
+    "accrued": 4743.408911739165,
+    "unconditionalDrop1h": 0.533721898417985,
+    "even": {
+     "buys": 602,
+     "spentShare": 0.9999,
+     "avgBuyVsVWAP": -0.0003,
+     "avgBuyVsTWAP": -0.1661,
+     "avgBuy": 0.00004167300446435276,
+     "dropAfter1h": 0.599,
+     "dropAfter10m": 0.5397,
+     "maxBuy": 136.7373,
+     "maxBuyHours": 17.34
+    },
+    "modelDown": {
+     "buys": 2780,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0053,
+     "avgBuyVsTWAP": -0.1614,
+     "avgBuy": 0.00004190685094837941,
+     "dropAfter1h": 0.6078,
+     "dropAfter10m": 0.5574,
+     "maxBuy": 63.9057,
+     "maxBuyHours": 8.1,
+     "pushFlipsToBuy": 0.7563,
+     "avgBuyVsEven": 0.0056
+    },
+    "quietMore": {
+     "buys": 602,
+     "spentShare": 0.9999,
+     "avgBuyVsVWAP": -0.0058,
+     "avgBuyVsTWAP": -0.1707,
+     "avgBuy": 0.00004144526635091869,
+     "dropAfter1h": 0.6042,
+     "dropAfter10m": 0.5342,
+     "maxBuy": 136.7373,
+     "maxBuyHours": 17.34,
+     "pushFlipsToBuy": 0.7309,
+     "avgBuyVsEven": -0.0055
+    },
+    "afterDrop": {
+     "buys": 894,
+     "spentShare": 0.9986,
+     "avgBuyVsVWAP": -0.0558,
+     "avgBuyVsTWAP": -0.2124,
+     "avgBuy": 0.00003935934962550107,
+     "dropAfter1h": 0.5487,
+     "dropAfter10m": 0.5235,
+     "maxBuy": 298.0262,
+     "maxBuyHours": 37.79,
+     "pushFlipsToBuy": 0.2223,
+     "avgBuyVsEven": -0.0555
+    },
+    "drip": {
+     "buys": 602,
+     "spentShare": 0.9947,
+     "avgBuyVsVWAP": -0.02,
+     "avgBuyVsTWAP": -0.1826,
+     "avgBuy": 0.000040851057787327304,
+     "dropAfter1h": 0.5631,
+     "dropAfter10m": 0.5559,
+     "maxBuy": 49.3855,
+     "maxBuyHours": 6.26,
+     "avgBuyVsEven": -0.0197
+    },
+    "dripQuiet": {
+     "buys": 602,
+     "spentShare": 0.9955,
+     "avgBuyVsVWAP": -0.0225,
+     "avgBuyVsTWAP": -0.1846,
+     "avgBuy": 0.0000407473138129722,
+     "dropAfter1h": 0.5686,
+     "dropAfter10m": 0.5403,
+     "maxBuy": 65.4336,
+     "maxBuyHours": 8.3,
+     "avgBuyVsEven": -0.0222
+    },
+    "dripDrop": {
+     "buys": 602,
+     "spentShare": 0.9935,
+     "avgBuyVsVWAP": -0.0286,
+     "avgBuyVsTWAP": -0.1897,
+     "avgBuy": 0.00004049316672130213,
+     "dropAfter1h": 0.5568,
+     "dropAfter10m": 0.5469,
+     "maxBuy": 59.4209,
+     "maxBuyHours": 7.54,
+     "avgBuyVsEven": -0.0283
+    }
+   }
+  },
+  {
+   "name": "swordcat",
+   "dex": "pumpswap",
+   "addr": "8ewuF2o8ACro7fqWepZ3tKhkbBjndZU4Ldk9scRPw83d",
+   "from": "2026-09-28T09:10:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 17.5,
+   "bars": 2522,
+   "barsWithTrades": 2522,
+   "raw5m": 5042,
+   "volQuoteTotal": 254891.73,
+   "tasks": {
+    "direction": {
+     "n": 2371,
+     "acc": 0.5074,
+     "accAllBars": 0.5074,
+     "nAllBars": 2371,
+     "upShare": 0.4867,
+     "majority": 0.5133,
+     "rules": {
+      "persistence": {
+       "n": 2371,
+       "acc": 0.4935
+      },
+      "reversal": {
+       "n": 2371,
+       "acc": 0.5065
+      }
+     },
+     "band": 0.0201,
+     "fixedFloatAgree": 0.9979,
+     "firstHalf": 0.5051,
+     "secondHalf": 0.5097
+    },
+    "activity": {
+     "n": 394,
+     "acc": 0.6472,
+     "accAllBars": 0.6247,
+     "nAllBars": 2366,
+     "upShare": 0.4594,
+     "majority": 0.5406,
+     "rules": {
+      "persistence": {
+       "n": 394,
+       "acc": 0.3985
+      },
+      "reversal": {
+       "n": 394,
+       "acc": 0.6015
+      },
+      "belowLevel": {
+       "n": 394,
+       "acc": 0.6269
+      }
+     },
+     "band": 0.0494,
+     "fixedFloatAgree": 0.9996,
+     "firstHalf": 0.6294,
+     "secondHalf": 0.665
+    },
+    "bigmove": {
+     "n": 394,
+     "acc": 0.5457,
+     "accAllBars": 0.5194,
+     "nAllBars": 2366,
+     "upShare": 0.4746,
+     "majority": 0.5254,
+     "rules": {
+      "persistence": {
+       "n": 394,
+       "acc": 0.5102
+      }
+     },
+     "band": 0.0494,
+     "fixedFloatAgree": 0.9992,
+     "firstHalf": 0.5584,
+     "secondHalf": 0.533
+    }
+   },
+   "buyback": {
+    "vwap": 0.000013230675997858282,
+    "twap": 0.000019993699025239602,
+    "accrued": 2079.148517937843,
+    "unconditionalDrop1h": 0.5308537616229924,
+    "even": {
+     "buys": 395,
+     "spentShare": 0.9997,
+     "avgBuyVsVWAP": -0.0146,
+     "avgBuyVsTWAP": -0.3479,
+     "avgBuy": 0.000013037405823694159,
+     "dropAfter1h": 0.5215,
+     "dropAfter10m": 0.5454,
+     "maxBuy": 74.9342,
+     "maxBuyHours": 14.25
+    },
+    "modelDown": {
+     "buys": 1641,
+     "spentShare": 0.9967,
+     "avgBuyVsVWAP": 0.0043,
+     "avgBuyVsTWAP": -0.3354,
+     "avgBuy": 0.000013287283807793357,
+     "dropAfter1h": 0.5583,
+     "dropAfter10m": 0.5201,
+     "maxBuy": 46.348,
+     "maxBuyHours": 8.81,
+     "pushFlipsToBuy": 0.6306,
+     "avgBuyVsEven": 0.0192
+    },
+    "quietMore": {
+     "buys": 395,
+     "spentShare": 0.9997,
+     "avgBuyVsVWAP": -0.0152,
+     "avgBuyVsTWAP": -0.3483,
+     "avgBuy": 0.000013029505166163107,
+     "dropAfter1h": 0.53,
+     "dropAfter10m": 0.5493,
+     "maxBuy": 74.9342,
+     "maxBuyHours": 14.25,
+     "pushFlipsToBuy": 0.8438,
+     "avgBuyVsEven": -0.0006
+    },
+    "afterDrop": {
+     "buys": 548,
+     "spentShare": 0.9997,
+     "avgBuyVsVWAP": -0.0209,
+     "avgBuyVsTWAP": -0.3521,
+     "avgBuy": 0.00001295355094257066,
+     "dropAfter1h": 0.6076,
+     "dropAfter10m": 0.5461,
+     "maxBuy": 164.0418,
+     "maxBuyHours": 31.19,
+     "pushFlipsToBuy": 0.154,
+     "avgBuyVsEven": -0.0064
+    },
+    "drip": {
+     "buys": 395,
+     "spentShare": 0.9958,
+     "avgBuyVsVWAP": -0.0546,
+     "avgBuyVsTWAP": -0.3744,
+     "avgBuy": 0.00001250803314662227,
+     "dropAfter1h": 0.5375,
+     "dropAfter10m": 0.5449,
+     "maxBuy": 21.5769,
+     "maxBuyHours": 4.1,
+     "avgBuyVsEven": -0.0406
+    },
+    "dripQuiet": {
+     "buys": 395,
+     "spentShare": 0.9951,
+     "avgBuyVsVWAP": -0.053,
+     "avgBuyVsTWAP": -0.3733,
+     "avgBuy": 0.00001253000772236417,
+     "dropAfter1h": 0.5297,
+     "dropAfter10m": 0.5467,
+     "maxBuy": 30.3915,
+     "maxBuyHours": 5.78,
+     "avgBuyVsEven": -0.0389
+    },
+    "dripDrop": {
+     "buys": 395,
+     "spentShare": 0.9958,
+     "avgBuyVsVWAP": -0.0577,
+     "avgBuyVsTWAP": -0.3765,
+     "avgBuy": 0.000012466999370049531,
+     "dropAfter1h": 0.518,
+     "dropAfter10m": 0.5597,
+     "maxBuy": 46.792,
+     "maxBuyHours": 8.9,
+     "avgBuyVsEven": -0.0438
+    }
+   }
+  },
+  {
+   "name": "SLOPCORE",
+   "dex": "pumpswap",
+   "addr": "3UMUTZeeVSLywQjeZ6sjngu3jc6oQSxpy2ApNH3xL8sf",
+   "from": "2026-09-28T00:00:00.000Z",
+   "to": "2026-10-15T21:20:00.000Z",
+   "days": 17.9,
+   "bars": 2577,
+   "barsWithTrades": 2556,
+   "raw5m": 4955,
+   "volQuoteTotal": 85836.6,
+   "tasks": {
+    "direction": {
+     "n": 2405,
+     "acc": 0.5647,
+     "accAllBars": 0.5647,
+     "nAllBars": 2405,
+     "upShare": 0.4312,
+     "majority": 0.5688,
+     "rules": {
+      "persistence": {
+       "n": 2405,
+       "acc": 0.4748
+      },
+      "reversal": {
+       "n": 2405,
+       "acc": 0.5252
+      }
+     },
+     "band": 0.02,
+     "fixedFloatAgree": 0.9996,
+     "firstHalf": 0.5473,
+     "secondHalf": 0.5818
+    },
+    "activity": {
+     "n": 404,
+     "acc": 0.646,
+     "accAllBars": 0.6547,
+     "nAllBars": 2421,
+     "upShare": 0.4604,
+     "majority": 0.5396,
+     "rules": {
+      "persistence": {
+       "n": 404,
+       "acc": 0.3762
+      },
+      "reversal": {
+       "n": 404,
+       "acc": 0.6238
+      },
+      "belowLevel": {
+       "n": 404,
+       "acc": 0.6955
+      }
+     },
+     "band": 0.0488,
+     "fixedFloatAgree": 0.9996,
+     "firstHalf": 0.6535,
+     "secondHalf": 0.6386
+    },
+    "bigmove": {
+     "n": 404,
+     "acc": 0.5223,
+     "accAllBars": 0.5238,
+     "nAllBars": 2421,
+     "upShare": 0.4876,
+     "majority": 0.5124,
+     "rules": {
+      "persistence": {
+       "n": 404,
+       "acc": 0.5322
+      }
+     },
+     "band": 0.0488,
+     "fixedFloatAgree": 0.9967,
+     "firstHalf": 0.4851,
+     "secondHalf": 0.5594
+    }
+   },
+   "buyback": {
+    "vwap": 0.0000031568406541884948,
+    "twap": 0.000003184738509538477,
+    "accrued": 762.9090363837089,
+    "unconditionalDrop1h": 0.5559686080132177,
+    "even": {
+     "buys": 405,
+     "spentShare": 0.9999,
+     "avgBuyVsVWAP": 0.0083,
+     "avgBuyVsTWAP": -0.0006,
+     "avgBuy": 0.0000031829273454924925,
+     "dropAfter1h": 0.5302,
+     "dropAfter10m": 0.5947,
+     "maxBuy": 95.6418,
+     "maxBuyHours": 50.71
+    },
+    "modelDown": {
+     "buys": 2204,
+     "spentShare": 1,
+     "avgBuyVsVWAP": 0.0028,
+     "avgBuyVsTWAP": -0.0059,
+     "avgBuy": 0.000003165837356627585,
+     "dropAfter1h": 0.6455,
+     "dropAfter10m": 0.5414,
+     "maxBuy": 82.3881,
+     "maxBuyHours": 43.68,
+     "pushFlipsToBuy": 0.561,
+     "avgBuyVsEven": -0.0054
+    },
+    "quietMore": {
+     "buys": 405,
+     "spentShare": 0.9994,
+     "avgBuyVsVWAP": 0.0095,
+     "avgBuyVsTWAP": 0.0006,
+     "avgBuy": 0.000003186798203446873,
+     "dropAfter1h": 0.5184,
+     "dropAfter10m": 0.6054,
+     "maxBuy": 95.6418,
+     "maxBuyHours": 50.71,
+     "pushFlipsToBuy": 0.6685,
+     "avgBuyVsEven": 0.0012
+    },
+    "afterDrop": {
+     "buys": 591,
+     "spentShare": 0.9996,
+     "avgBuyVsVWAP": -0.0331,
+     "avgBuyVsTWAP": -0.0416,
+     "avgBuy": 0.0000030521956746604697,
+     "dropAfter1h": 0.5134,
+     "dropAfter10m": 0.4865,
+     "maxBuy": 74.5763,
+     "maxBuyHours": 39.54,
+     "pushFlipsToBuy": 0.1315,
+     "avgBuyVsEven": -0.0411
+    },
+    "drip": {
+     "buys": 405,
+     "spentShare": 0.9951,
+     "avgBuyVsVWAP": -0.0208,
+     "avgBuyVsTWAP": -0.0294,
+     "avgBuy": 0.0000030911098521162706,
+     "dropAfter1h": 0.575,
+     "dropAfter10m": 0.6361,
+     "maxBuy": 18.5533,
+     "maxBuyHours": 9.84,
+     "avgBuyVsEven": -0.0288
+    },
+    "dripQuiet": {
+     "buys": 405,
+     "spentShare": 0.9948,
+     "avgBuyVsVWAP": -0.007,
+     "avgBuyVsTWAP": -0.0157,
+     "avgBuy": 0.0000031347994234239177,
+     "dropAfter1h": 0.5547,
+     "dropAfter10m": 0.6449,
+     "maxBuy": 25.4145,
+     "maxBuyHours": 13.47,
+     "avgBuyVsEven": -0.0151
+    },
+    "dripDrop": {
+     "buys": 405,
+     "spentShare": 0.9928,
+     "avgBuyVsVWAP": -0.0281,
+     "avgBuyVsTWAP": -0.0366,
+     "avgBuy": 0.0000030680549438920367,
+     "dropAfter1h": 0.554,
+     "dropAfter10m": 0.608,
+     "maxBuy": 37.785,
+     "maxBuyHours": 20.03,
+     "avgBuyVsEven": -0.0361
+    }
+   }
+  }
+ ],
+ "aggregateExMonkey": {
+  "direction": {
+   "n": 17704,
+   "acc": 0.5232,
+   "majority": 0.5233,
+   "band": 0.0074,
+   "rules": {
+    "persistence": 0.5173,
+    "reversal": 0.4827
+   }
+  },
+  "activity": {
+   "n": 3032,
+   "acc": 0.6395,
+   "majority": 0.5267,
+   "band": 0.0178,
+   "rules": {
+    "persistence": 0.3902,
+    "reversal": 0.6098,
+    "belowLevel": 0.6458
+   }
+  },
+  "bigmove": {
+   "n": 3032,
+   "acc": 0.5228,
+   "majority": 0.5129,
+   "band": 0.0178,
+   "rules": {
+    "persistence": 0.5313
+   }
+  }
+ },
+ "opsTotalMac": 10916648
+}

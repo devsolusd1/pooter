@@ -1,0 +1,22 @@
+# secrets: never in the repo
+.env
+.env.*
+*.key
+keys/
+*keypair*.json
+*-wallet.json
+
+# build outputs and dependencies (programs build in WSL under ~/hunch-target)
+node_modules/
+target/
+*.so
+*.log
+
+# local design history, screenshots and old site variants (kept on disk only)
+design/*
+!design/layout-final.md
+site/variants/
+
+.DS_Store
+Thumbs.db
+.vercel

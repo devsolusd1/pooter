@@ -1,0 +1,25 @@
+[package]
+name = "hunch-net-bench"
+version = "0.1.0"
+edition = "2021"
+description = "Bench only: runs one hunch-net step (feed, learn, think) per instruction inside the Solana VM. Not Hunch's program."
+license = "MIT"
+publish = false
+
+[lib]
+name = "hunch_net_bench"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+hunch-net = { path = "../hunch-net" }
+pinocchio = { version = "0.11", default-features = false }
+
+# Same release settings as the user's other Pinocchio programs (overflow checks stay on).
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+overflow-checks = true
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

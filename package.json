@@ -1,0 +1,10 @@
+{
+  "name": "pooter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "site": "node scripts/site.mjs",
+    "build-replay": "node scripts/build-replay.mjs",
+    "check": "node scripts/check.mjs"
+  }
+}

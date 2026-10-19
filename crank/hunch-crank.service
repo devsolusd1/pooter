@@ -1,0 +1,23 @@
+# A systemd unit for the crank on a Linux host (copy the crank folder there, run `npm install --omit=dev` in it).
+#   sudo cp hunch-crank.service /etc/systemd/system/ && sudo systemctl enable --now hunch-crank
+#   journalctl -u hunch-crank -f          # its log
+# The settings live in /opt/hunch-crank/.env (RPC_URL, PROGRAM_ID, CRANK_KEYPAIR, optional PRIORITY,
+# TICK_FROM, CRANK_LOG), readable by the hunch user only. On a second (backup) host set TICK_FROM=14.
+[Unit]
+Description=Hunch crank (tick, buy_and_burn, grow_brain_book, and the graduation: withdraw_surplus, adopt_pool, claim_pool_fees)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=hunch
+WorkingDirectory=/opt/hunch-crank
+# SEND=1 here, on the command line, is what makes it send (the crank never takes SEND from .env)
+ExecStart=/usr/bin/env SEND=1 /usr/bin/node crank.mjs
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/hunch-crank
+
+[Install]
+WantedBy=multi-user.target

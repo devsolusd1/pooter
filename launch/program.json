@@ -1,0 +1,4 @@
+{
+  "notes": "The Hunch program's address on each cluster. The budget PDA (the pool's creator and the config's leftover receiver) is derived from it: seeds [\"budget\"]. null blocks sending on that cluster. Fill mainnet-beta with the address scripts/deploy-program.sh prints (the public key of PROGRAM_KEYPAIR).",
+  "mainnet-beta": null
+}

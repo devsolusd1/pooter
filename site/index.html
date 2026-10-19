@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Busier or quieter?</title>
+<meta name="description" content="A tiny neural network inside a Solana coin. It learns from the coin's own trades and calls, each hour, whether the next hour will be busier or quieter. Every call is scored in public beside a coin flip and a simple rule.">
+<meta name="theme-color" content="#262624">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&family=Fragment+Mono&family=Pixelify+Sans:wght@400..600&display=swap">
+<link rel="stylesheet" href="site.css">
+<script>try { if (localStorage.getItem("hunch-look") === "light") document.documentElement.dataset.theme = "light"; } catch (e) {}</script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="home" aria-label="Back to the call"><canvas class="mark" width="13" height="13" aria-hidden="true"></canvas><span class="name" data-name></span></button>
+    <button class="status pill sm">Not launched</button>
+    <span class="grow"></span>
+    <button class="theme" aria-label="Light mode" aria-pressed="false">
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z"/></svg>
+    </button>
+  </header>
+
+  <div class="notice"></div>
+
+  <main class="main">
+    <aside class="desk">
+      <div class="speech"></div>
+      <div class="me"></div>
+      <nav class="keys" aria-label="Ask the coin"></nav>
+    </aside>
+    <div class="views"></div>
+  </main>
+
+  <footer class="foot"><p></p></footer>
+</div>
+</body>
+</html>

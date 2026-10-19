@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "outputDirectory": "site",
+  "redirects": [
+    { "source": "/variants/:path*", "destination": "/", "permanent": false },
+    {
+      "source": "/:path((?!api(?:/|$)|\\.well-known(?:/|$))(?:[^/]+/)*[^/.]+)",
+      "destination": "/:path*/",
+      "permanent": true
+    }
+  ],
+  "functions": {
+    "api/*.js": { "maxDuration": 15 }
+  }
+}

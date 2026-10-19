@@ -1,0 +1,20 @@
+{
+  "name": "Pooter",
+  "symbol": "POOTER",
+  "description": "A tiny neural network inside a Solana program calls each hour of this coin's trading busier or quieter, learns from the result, and spends a slice of every trade's fee buying the coin and burning it. It calls activity, not price.",
+  "image": "https://gateway.pinata.cloud/ipfs/FILL_IMAGE_CID",
+  "showName": true,
+  "website": "https://FILL_WEBSITE",
+  "external_url": "https://FILL_WEBSITE",
+  "twitter": "https://x.com/FILL_HANDLE_OR_DELETE_THIS_LINE",
+  "telegram": "https://t.me/FILL_GROUP_OR_DELETE_THIS_LINE",
+  "properties": {
+    "files": [
+      {
+        "uri": "https://gateway.pinata.cloud/ipfs/FILL_IMAGE_CID",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

@@ -1,0 +1,14 @@
+[package]
+name = "hunch-net"
+version = "0.1.0"
+edition = "2021"
+description = "Hunch's network in integer Q16.16: the exact port of hunch/site/core/net.js (version one, 10-8-8-1 with sealed chapters; chapter 0 is the 8-8-1)."
+license = "MIT"
+publish = false
+
+# no_std, no dependencies, no floats. The program crate will depend on this one.
+[dependencies]
+
+# Only the tests hash the weights (the brain hash the site prints).
+[dev-dependencies]
+sha2 = "0.10"

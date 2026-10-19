@@ -1,0 +1,22 @@
+[package]
+name = "hunch-cpi-probe"
+version = "0.0.1"
+edition = "2021"
+description = "Test-only program: calls Hunch's buy_and_burn by CPI, to show Hunch refuses it."
+license = "MIT"
+publish = false
+
+[lib]
+name = "hunch_cpi_probe"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+pinocchio = { version = "0.11", default-features = false, features = ["cpi"] }
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

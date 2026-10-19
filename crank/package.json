@@ -1,0 +1,14 @@
+{
+  "name": "hunch-crank",
+  "private": true,
+  "type": "module",
+  "description": "Keeps the Hunch program ticking by the chain's clock: tick every 10-minute bar, buy_and_burn every hour, grow_brain_book when needed, and the graduation into DAMM v2 (withdraw_surplus, adopt_pool, claim_pool_fees).",
+  "scripts": {
+    "start": "node crank.mjs",
+    "dry": "node crank.mjs --dry",
+    "test": "node test/unit.mjs"
+  },
+  "dependencies": {
+    "@solana/web3.js": "1.99.0"
+  }
+}
