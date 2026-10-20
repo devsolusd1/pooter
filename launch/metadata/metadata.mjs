@@ -40,7 +40,7 @@ for (const k of ["name", "symbol"]) {
   else ok.push(`token.json ${k} "${T[k]}": ${bytes(T[k])} of ${MAX[k]} bytes`);
 }
 if (T.uri == null) fix.push("token.json: uri is null; it gets the metadata.json link once that file is uploaded (README.md)");
-else linkProblems("token.json uri", T.uri, MAX.uri);
+else linkProblems("token.json uri", T.uri, MAX.uri, false); // on IPFS or served by the site (site/metadata.json, as chosen on 2026-10-20)
 
 // ---------- metadata.json: name and symbol always follow token.json ----------
 M.name = T.name;
