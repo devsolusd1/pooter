@@ -128,6 +128,7 @@ pub fn memos(logs: &[String]) -> Vec<String> {
     out
 }
 
+#[derive(Clone)]
 pub struct PoolKeys {
     pub pool: Address,
     pub config: Address,
@@ -914,6 +915,225 @@ impl Env {
         self.send_payer(&[cu_limit(400_000), ix])
     }
 
+    // ---------------------------------------------------------------- withdraw_budget (the developer's withdrawal)
+    /// The upgrade authority's WSOL account (its associated token account), where withdrawals go.
+    pub fn dev_wsol(&self) -> Address {
+        ata_of(&self.authority.pubkey(), &wsol_mint())
+    }
+    /// withdraw_budget with `signer` in the authority's place and `dest` as the WSOL account to receive, for
+    /// the phase this world is in: the adopted DAMM v2 pool's accounts once there is one, else the DBC curve's.
+    pub fn withdraw_ix(&self, signer: &Address, dest: &Address, amount: u64) -> Instruction {
+        let mut data = vec![tag::WITHDRAW_BUDGET, self.bumps[0]];
+        data.extend_from_slice(&amount.to_le_bytes());
+        let mut accounts = vec![
+            AccountMeta::new_readonly(*signer, true),
+            AccountMeta::new_readonly(self.programdata, false),
+            AccountMeta::new(self.state, false),
+            AccountMeta::new(self.signal, false),
+            AccountMeta::new_readonly(self.budget, false),
+            AccountMeta::new(self.budget_wsol, false),
+            AccountMeta::new(self.budget_hunch(), false),
+            AccountMeta::new_readonly(self.pool().mint, false),
+            AccountMeta::new_readonly(wsol_mint(), false),
+            AccountMeta::new(*dest, false),
+            AccountMeta::new_readonly(token_program(), false),
+            AccountMeta::new_readonly(ix_sysvar(), false),
+            AccountMeta::new_readonly(memo_program(), false),
+            AccountMeta::new_readonly(self.event_authority, false),
+            AccountMeta::new_readonly(self.hunch, false),
+        ];
+        if let Some(k) = &self.damm {
+            accounts.extend([
+                AccountMeta::new_readonly(k.pool, false),
+                AccountMeta::new_readonly(damm_pool_authority(), false),
+                AccountMeta::new(k.vault_a, false),
+                AccountMeta::new(k.vault_b, false),
+                AccountMeta::new(k.position, false),
+                AccountMeta::new_readonly(k.nft, false),
+                AccountMeta::new_readonly(damm_event_authority(), false),
+                AccountMeta::new_readonly(damm(), false),
+            ]);
+        } else {
+            let p = self.pool();
+            accounts.extend([
+                AccountMeta::new(p.pool, false),
+                AccountMeta::new_readonly(p.config, false),
+                AccountMeta::new(p.base_vault, false),
+                AccountMeta::new(p.quote_vault, false),
+                AccountMeta::new_readonly(dbc_pool_authority(), false),
+                AccountMeta::new_readonly(dbc_event_authority(), false),
+                AccountMeta::new_readonly(dbc(), false),
+            ]);
+        }
+        Instruction { program_id: self.hunch, accounts, data }
+    }
+    /// The transaction scripts/withdraw-budget.mjs sends: the authority's WSOL account created if missing
+    /// (idempotent), withdraw_budget into it, then that account closed into the authority's wallet, so the
+    /// SOL arrives as plain SOL. The authority signs and pays.
+    pub fn withdraw_ixs(&self, amount: u64) -> Vec<Instruction> {
+        let auth = self.authority.pubkey();
+        vec![
+            cu_limit(400_000),
+            create_ata_ix(&auth, &auth, &wsol_mint()),
+            self.withdraw_ix(&auth, &self.dev_wsol(), amount),
+            close_account_ix(&self.dev_wsol(), &auth, &auth),
+        ]
+    }
+    pub fn withdraw(&mut self, amount: u64) -> Result<TransactionMetadata, FailedTransactionMetadata> {
+        let auth = self.authority.insecure_clone();
+        let ixs = self.withdraw_ixs(amount);
+        self.send(&ixs, &[&auth])
+    }
+    /// The withdrawal event (6) of a transaction made of `ixs`, paid by `payer`.
+    pub fn withdraw_event_of(&self, meta: &TransactionMetadata, ixs: &[Instruction], payer: &Address) -> Option<WithdrawEvent> {
+        let keys = self.message_keys(ixs, payer);
+        self.events(meta, &keys).into_iter().find(|(k, _)| *k == ids::event::WITHDRAW).map(|(_, d)| WithdrawEvent {
+            amount: rd_u64(&d, 0),
+            held: rd_u64(&d, 8),
+            claimed: rd_u64(&d, 16),
+            left: rd_u64(&d, 24),
+            total: rd_u64(&d, 32),
+            count: rd_u32(&d, 40),
+            signer: Address::new_from_array(d[44..76].try_into().unwrap()),
+        })
+    }
+    /// The withdrawal event of a `withdraw(..)` transaction.
+    pub fn withdraw_event(&self, meta: &TransactionMetadata) -> Option<WithdrawEvent> {
+        self.withdraw_event_of(meta, &self.withdraw_ixs(0), &self.authority.pubkey())
+    }
+
+    /// A copy of this world (accounts, clock, keys), optionally with another Hunch binary loaded at the same
+    /// program id (its upgrade authority kept). With the deployed build (`old_so()`) it shows what the
+    /// program on mainnet would do from the very same accounts.
+    pub fn twin(&self, hunch_so: Option<&str>) -> Env {
+        let mut svm = self.svm.clone();
+        if let Some(so) = hunch_so {
+            svm.add_program_from_file(self.hunch, so).expect("hunch binary for the twin");
+            let mut pd = svm.get_account(&self.programdata).unwrap();
+            pd.data[12] = 1;
+            pd.data[13..45].copy_from_slice(self.authority.pubkey().as_ref());
+            svm.set_account(self.programdata, pd).unwrap();
+        }
+        Env {
+            svm,
+            payer: self.payer.insecure_clone(),
+            authority: self.authority.insecure_clone(),
+            hunch: self.hunch,
+            state: self.state,
+            model: self.model,
+            tape: self.tape,
+            signal: self.signal,
+            diary: self.diary,
+            book: self.book,
+            budget: self.budget,
+            event_authority: self.event_authority,
+            budget_wsol: self.budget_wsol,
+            programdata: self.programdata,
+            bumps: self.bumps,
+            pool: self.pool.clone(),
+            mint_kp: self.mint_kp.insecure_clone(),
+            damm: self.damm.clone(),
+        }
+    }
+    /// The LIVE mainnet accounts cloned by programs/tests/clone-live.mjs (read-only, public RPC) in `dir`, with
+    /// `hunch_so` loaded at the live program id. The ProgramData's upgrade authority is set to a throwaway
+    /// key, a stand-in for the developer's wallet (whose key the tests never have): `env.authority`. The
+    /// clock is the chain's at the clone. Returns None when there is no clone in `dir`.
+    pub fn from_live(dir: &str, hunch_so: &str) -> Option<(Env, serde_json::Value)> {
+        let index: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(format!("{dir}/index.json")).ok()?).ok()?;
+        let program = Address::from_str(index["program"].as_str()?).ok()?;
+        let mut svm = LiteSVM::new().with_transaction_history(0).with_log_bytes_limit(None);
+        svm.add_program_from_file(dbc(), so_path("DBC_SO", "mainnet-programs/dbc-0.2.2.so")).expect("dbc-0.2.2.so");
+        svm.add_program_from_file(memo_program(), so_path("MEMO_SO", "mainnet-programs/memo.so")).expect("memo.so");
+        svm.add_program_from_file(program, hunch_so).expect("hunch binary");
+        svm.add_program_from_file(probe_id(), so_path("PROBE_SO", "deploy/hunch_cpi_probe.so")).expect("hunch_cpi_probe.so");
+        let mut mint = vec![0u8; 82];
+        mint[44] = 9;
+        mint[45] = 1;
+        let lamports = svm.minimum_balance_for_rent_exemption(82);
+        svm.set_account(wsol_mint(), solana_account::Account { lamports, data: mint, owner: token_program(), executable: false, rent_epoch: 0 }).unwrap();
+        let roles = index["accounts"].as_object()?;
+        for (role, key) in roles {
+            if key.is_null() || role == "programdata" || role == "clock" {
+                continue;
+            }
+            let text = std::fs::read_to_string(format!("{dir}/{role}.json")).ok()?;
+            let j: serde_json::Value = serde_json::from_str(&text).ok()?;
+            let a = &j["account"];
+            let data = base64::engine::general_purpose::STANDARD.decode(a["data"][0].as_str()?).ok()?;
+            let acc = solana_account::Account { lamports: a["lamports"].as_u64()?, data, owner: Address::from_str(a["owner"].as_str()?).ok()?, executable: false, rent_epoch: 0 };
+            svm.set_account(Address::from_str(j["pubkey"].as_str()?).ok()?, acc).unwrap();
+        }
+        let payer = Keypair::new();
+        let authority = Keypair::new();
+        svm.airdrop(&payer.pubkey(), 1_000_000_000_000).unwrap();
+        svm.airdrop(&authority.pubkey(), 1_000_000_000).unwrap();
+        let (programdata, pd_bump) = pda(&[program.as_ref()], &loader_v3());
+        let mut pd = svm.get_account(&programdata).unwrap();
+        pd.data[12] = 1;
+        pd.data[13..45].copy_from_slice(authority.pubkey().as_ref());
+        svm.set_account(programdata, pd).unwrap();
+        let p = |s: &[u8]| pda(&[s], &program);
+        let (state, b1) = p(b"state");
+        let (model, b2) = p(b"model");
+        let (tape, b3) = p(b"tape");
+        let (signal, b4) = p(b"signal");
+        let (diary, b5) = p(b"diary");
+        let (book, b6) = p(b"brains");
+        let (budget, b7) = p(b"budget");
+        let (event_authority, b8) = p(b"__event_authority");
+        let key = |r: &str| Address::from_str(roles.get(r).and_then(|v| v.as_str()).unwrap_or("11111111111111111111111111111111")).unwrap();
+        let pool = PoolKeys { pool: key("pool"), config: key("config"), mint: key("mint"), base_vault: key("base_vault"), quote_vault: key("quote_vault") };
+        let mut env = Env {
+            svm,
+            payer,
+            authority,
+            hunch: program,
+            state,
+            model,
+            tape,
+            signal,
+            diary,
+            book,
+            budget,
+            event_authority,
+            budget_wsol: ata_of(&budget, &wsol_mint()),
+            programdata,
+            bumps: [pd_bump, b1, b2, b3, b4, b5, b6, b7, b8],
+            pool: Some(pool),
+            mint_kp: Keypair::new(),
+            damm: None,
+        };
+        let ts = index["unix_timestamp"].as_i64()?;
+        env.set_clock(ts, index["slot"].as_u64()?);
+        Some((env, index))
+    }
+
+    /// Every account a buy or a tick can touch, for comparing two worlds byte for byte.
+    pub fn watched(&self) -> Vec<Address> {
+        let mut v = vec![self.state, self.model, self.tape, self.signal, self.diary, self.book, self.budget_wsol, self.budget_hunch(), self.authority.pubkey()];
+        let p = self.pool();
+        v.extend([p.pool, p.config, p.mint, p.base_vault, p.quote_vault]);
+        if let Some(k) = &self.damm {
+            v.extend([k.pool, k.vault_a, k.vault_b, k.position, k.nft]);
+        }
+        v
+    }
+    /// The accounts in `keys` whose lamports, owner or data differ between two worlds.
+    pub fn differences(&self, other: &Env, keys: &[Address]) -> Vec<Address> {
+        keys.iter()
+            .filter(|k| {
+                let (a, b) = (self.svm.get_account(k), other.svm.get_account(k));
+                match (a, b) {
+                    (Some(a), Some(b)) => a.lamports != b.lamports || a.owner != b.owner || a.data != b.data,
+                    (None, None) => false,
+                    _ => true,
+                }
+            })
+            .copied()
+            .collect()
+    }
+
     /// A DAMM v2 swap2 by a trader on the adopted pool: a buy spends `amount` lamports of WSOL, a sale
     /// `amount` HUNCH units.
     pub fn damm_swap_ix(&self, owner: &Address, buy: bool, amount: u64, min_out: u64) -> Instruction {
@@ -1261,3 +1481,40 @@ pub fn token_transfer_ix(from: &Address, to: &Address, owner: &Address, amount: 
 }
 
 pub use hunch::ids::err as errors;
+
+/// SPL Token close_account (instruction 9): the account's lamports to `to` (a WSOL account's whole
+/// balance, unwrapped).
+pub fn close_account_ix(account: &Address, to: &Address, owner: &Address) -> Instruction {
+    Instruction {
+        program_id: token_program(),
+        accounts: vec![AccountMeta::new(*account, false), AccountMeta::new(*to, false), AccountMeta::new_readonly(*owner, true)],
+        data: vec![9],
+    }
+}
+
+/// What one withdraw_budget reported (event 6).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct WithdrawEvent {
+    pub amount: u64,
+    /// the budget's WSOL after sync_native and the claim
+    pub held: u64,
+    pub claimed: u64,
+    /// what stayed in the budget's WSOL account
+    pub left: u64,
+    /// the lifetime total and count after this one
+    pub total: u64,
+    pub count: u32,
+    pub signer: Address,
+}
+
+/// The deployed build (the binary on mainnet since 2026-10-20, sha256 face57dd...): OLD_HUNCH_SO, by
+/// default ~/hunch-target/final/hunch.so.
+pub fn old_so() -> String {
+    so_path("OLD_HUNCH_SO", "final/hunch.so")
+}
+
+/// DBC VirtualPool fee counters a withdrawal must never take: the partner's (the config's fee claimer, the
+/// developer) and the protocol's, both in SOL (DBC 0.2.x `state/virtual_pool.rs`: protocol_base_fee 248,
+/// protocol_quote_fee 256, partner_base_fee 264, partner_quote_fee 272).
+pub const POOL_PROTOCOL_QUOTE_FEE: usize = 256;
+pub const POOL_PARTNER_QUOTE_FEE: usize = 272;

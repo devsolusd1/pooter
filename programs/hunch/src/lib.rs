@@ -34,6 +34,13 @@
 //!   fee is above the fee at adoption or one Hunch cannot model; the impact cap on the smaller of the last
 //!   tick's and the live liquidity), burning DBC's leftover HUNCH too.
 //!
+//! The developer's withdrawal (added 2026-10-20), `withdraw_budget` (the program's upgrade authority only,
+//! top level, never by CPI, in the curve, graduating or pool phase): claims the fee owed to the budget as the
+//! hourly buy does, then moves the budget's WSOL (all of it, or an amount) to a WSOL account the signer owns.
+//! The developer says they use it to buy the coin and burn it by hand. It records a lifetime total and a
+//! count in State (`withdrawn`, `withdrawals`, `last_withdraw_hour`), an event and a memo line, and changes
+//! nothing the hourly buy decides by: that buy goes on with whatever fee arrives later.
+//!
 //! The program stays upgradeable (the developer's upgrade authority). The rules are mirrored one for one
 //! in `hunch/site/core/chain.js`, and the LiteSVM replay checks the two agree on every tick.
 

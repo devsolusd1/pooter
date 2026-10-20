@@ -184,6 +184,7 @@ export function start(page) {
           ? `Right now ${sol(s.held ?? 0n)} waits to be spent in my budget${onCurve > 0n ? `, and ${sol(onCurve)} is still on the old curve` : ""}. My share of the new pool’s fees joins it when anyone claims it; until then it sits in the pool, where this page does not read it. In all: ${sol(st.spent)} spent in ${plural(st.buys, "buy")}, ${fmtTokens(st.burned)} ${TICKER} burned.${supply()}`
           : `Right now ${sol((s.held ?? 0n) + onCurve)} waits to be spent (${sol(s.held ?? 0n)} in my budget, ${sol(onCurve)} still on the pool). In all: ${sol(st.spent)} spent in ${plural(st.buys, "buy")}, ${fmtTokens(st.burned)} ${TICKER} burned.${supply()}`,
         route: graduated ? `Since graduation the fee is the new pool’s, and my locked share of its liquidity still brings me 0.99% of each trade. My position has brought ${sol(st.poolClaimed)} so far.` : null,
+        moved: `In all I spent ${sol(st.spent)} and burned ${fmtTokens(st.burned)} ${TICKER} myself. ${movedLine()}`,
       },
       diary: diary(),
       diaryEmpty: phase === PHASE.SETUP ? "No lines yet. The first is written when my first full hour watching a pool ends." : "No lines yet.",
@@ -195,8 +196,9 @@ export function start(page) {
       }],
       book: (s.book?.records ?? []).slice(-14).reverse().map((r) => ({ day: r.day, when: utc(r.unixTime), right: `${r.hits}/${r.n}`, hash: r.hash })),
       faq: {
-        key: `${phase}|${st.adoptTs}|${pd?.authority ?? "?"}|${L.chapter}|${launchHour}`,
+        key: `${phase}|${st.adoptTs}|${pd?.authority ?? "?"}|${L.chapter}|${launchHour}|${st.withdrawals}|${st.withdrawn}`,
         developer: CONFIG.developer,
+        moved: movedLine(),
         upgrade: pd ? (pd.authority ? ["Yes. The developer can update the program. Its upgrade authority is ", link(pd.authority), "."] : "No. No one can update the program now: its upgrade authority is gone.")
           : "Yes, the developer can update the program. Who holds that power could not be read just now.",
         live: [
@@ -209,6 +211,15 @@ export function start(page) {
     };
 
     function supply() { return s.mint ? ` ${TICKER} supply now: ${fmtTokens(s.mint.supply)}.` : ""; }
+    // what the developer has moved from my budget to their wallet (withdraw_budget), from my state, never from memos
+    function movedLine() {
+      const n = Number(st.withdrawals ?? 0);
+      if (!n) return "The developer has not moved any of my budget to their wallet yet.";
+      const when = utc(st.lastWithdrawHour * 3600);
+      return n === 1
+        ? `The developer has moved ${sol(st.withdrawn)} of my budget to their wallet, once, in the hour from ${when}.`
+        : `The developer has moved ${sol(st.withdrawn)} of my budget to their wallet, ${times(n)}, the last in the hour from ${when}.`;
+    }
     function lastScored() {
       for (let i = E.length - 1; i >= 0; i--) {
         const e = E[i];

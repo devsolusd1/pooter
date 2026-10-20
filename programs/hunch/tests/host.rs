@@ -287,7 +287,8 @@ fn state_layout_table_is_generated_from_the_struct() {
         adopt_fee_fp: u64, last_fee_fp: u64, adopt_fee_num: u64, surplus: u64, pool_claimed: u64, adopt_ts: i64,
         adopt_hour: u32, pool_warm_end: u32, prev_n: u32, prev_hits: u32, prev_rule_hits: u32, prev_forfeits: u32,
         prev_not_scored: u32, last_status: u8, dist_cur: u8, dist_prev: u8, grad_line: u8, ticker: [u8; 16],
-        migration_sqrt_price: [u64; 2], reserved: [u64; 4],
+        migration_sqrt_price: [u64; 2], withdrawn: u64, withdrawals: u32, last_withdraw_hour: u32,
+        reserved: [u64; 2],
     );
     // complete: each field starts where the previous one ends, and the last ends at STATE_LEN
     let mut at = 0;
@@ -306,6 +307,7 @@ fn state_layout_table_is_generated_from_the_struct() {
             match *name {
                 "ticker" => "ticker (final)",
                 "migration_sqrt_price" => "review fix (2026-10-16)",
+                "withdrawn" | "withdrawals" | "last_withdraw_hour" => "withdraw_budget (2026-10-20)",
                 "reserved" => "reserve",
                 _ => "graduation",
             }
@@ -337,6 +339,7 @@ fn layout_doc_lists_every_instruction_tag_and_error_code() {
         ("adopt_pool", tag::ADOPT_POOL),
         ("buy_and_burn_pool", tag::BUY_AND_BURN_POOL),
         ("claim_pool_fees", tag::CLAIM_POOL_FEES),
+        ("withdraw_budget", tag::WITHDRAW_BUDGET),
         ("event", tag::EVENT),
     ];
     let errors = [
@@ -369,6 +372,8 @@ fn layout_doc_lists_every_instruction_tag_and_error_code() {
         ("ALREADY_WAITED_THIS_HOUR", err::ALREADY_WAITED_THIS_HOUR),
         ("BAD_TICKER", err::BAD_TICKER),
         ("FEE_RAISED", err::FEE_RAISED),
+        ("NOTHING_TO_WITHDRAW", err::NOTHING_TO_WITHDRAW),
+        ("AMOUNT_TOO_HIGH", err::AMOUNT_TOO_HIGH),
     ];
     let doc = format!("{}/../../design/layout-final.md", env!("CARGO_MANIFEST_DIR"));
     let Ok(text) = fs::read_to_string(&doc) else {
@@ -384,4 +389,19 @@ fn layout_doc_lists_every_instruction_tag_and_error_code() {
         assert!(text.contains(&row), "layout-final.md lacks the row {row}");
     }
     println!("layout-final.md lists {} instruction tags and {} error codes as ids.rs has them", tags.len(), errors.len());
+}
+
+/// withdraw_budget's memo line: the amount truncated to 3 decimals, the stored ticker.
+#[test]
+fn the_withdrawal_memo_line() {
+    use hunch::format::withdraw_line;
+    let text = |l: u64, t: &[u8]| String::from_utf8(withdraw_line(l, t).as_bytes().to_vec()).unwrap();
+    assert_eq!(
+        text(5_381_999_999, b"POOTER"),
+        "the developer withdrew 5.381 SOL from my budget to their wallet. They say they use it to buy POOTER and burn it by hand."
+    );
+    assert_eq!(text(1, b"HUNCH"), "the developer withdrew 0.000 SOL from my budget to their wallet. They say they use it to buy HUNCH and burn it by hand.");
+    let worst = text(u64::MAX, b"0123456789");
+    println!("longest withdrawal line: {} bytes: {worst}", worst.len());
+    assert!(worst.len() < 240 && worst.ends_with(" by hand."), "{worst}");
 }

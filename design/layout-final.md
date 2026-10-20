@@ -9,6 +9,28 @@ test `layout_doc_lists_every_instruction_tag_and_error_code` checks the tag and 
 
 Rerun both: `wsl -e bash -lc 'cd /mnt/c/Users/John/RafinhaProject/hunch/programs/hunch && CARGO_TARGET_DIR=$HOME/hunch-target/<your folder>/host cargo test --release --offline -- --nocapture'`
 
+## Added 2026-10-20: `withdraw_budget` (tag 12)
+
+The developer chose to have the budget go to their wallet, so they can buy the coin and burn it by hand,
+while the hourly buy keeps running on whatever fee arrives later. The site says so publicly. Full description
+under "Instructions", tag 12.
+
+- **No existing field moved; `STATE_LEN` stays 1,248.** Three fields come out of the reserve, which the live
+  State holds at zero (checked on a clone of the live accounts), so they start at "never withdrawn":
+  `withdrawn` (u64, 1,216), `withdrawals` (u32, 1,224), `last_withdraw_hour` (u32, 1,228). The reserve
+  shrinks to 16 bytes at 1,232.
+- **No existing instruction changed** (accounts, data or results). The LiteSVM tests run the hourly buy before
+  and after a withdrawal beside the deployed build (sha256 face57dd...) from identical accounts: every byte
+  matches.
+- New errors: 31 `NOTHING_TO_WITHDRAW`, 32 `AMOUNT_TOO_HIGH`. New event kind 6 (`WITHDRAW`). New memo line
+  (format.rs `withdraw_line`).
+- What the other parts need. `site/decode.js`: the three fields in `ST` and `decodeState` (done; the page shows
+  the lifetime total in "Buy and burn" and in Questions). `crank/`: nothing (it never sends tag 12; after a
+  withdrawal the hourly buy usually waits with "below 0.01 SOL" until new fees arrive, which it already
+  handles). `site/core/chain.js`: nothing (it does not read State bytes). Tools: `scripts/withdraw-budget.mjs`,
+  `scripts/burn.mjs`, `scripts/claim-dev-fees.mjs`, `scripts/upgrade-program.sh`, rehearsed together by
+  `scripts/rehearse-withdraw.sh` on a local validator holding the live accounts.
+
 ## Changed after review (2026-10-16)
 
 Three review findings were applied to the program. No instruction's accounts or data changed. One State
@@ -208,8 +230,17 @@ adoption bar, see "Changed after review"). `pad*` and `reserved` are always zero
 | 1183 | 1 | `grad_line` | `u8` | graduation |
 | 1184 | 16 | `ticker` | `[u8;16]` | ticker (final) |
 | 1200 | 16 | `migration_sqrt_price` | `[u64;2]` | review fix (2026-10-16) |
-| 1216 | 32 | `reserved` | `[u64;4]` | reserve |
+| 1216 | 8 | `withdrawn` | `u64` | withdraw_budget (2026-10-20) |
+| 1224 | 4 | `withdrawals` | `u32` | withdraw_budget (2026-10-20) |
+| 1228 | 4 | `last_withdraw_hour` | `u32` | withdraw_budget (2026-10-20) |
+| 1232 | 16 | `reserved` | `[u64;2]` | reserve |
 | 1248 | | (end: STATE_LEN = 1248) | | |
+
+**`withdrawn`, `withdrawals`, `last_withdraw_hour`** (offsets 1,216, 1,224 and 1,228): the lamports the
+developer has moved from the budget to their wallet with `withdraw_budget` (tag 12), in all; how many times;
+and the unix hour of the last time. All three are 0 until the first withdrawal (they come from the reserve,
+which the live State held at zero). They are not part of `spent`, `burned` or `buys`, which count only what
+the program itself bought and burned.
 
 **`ticker`** (offset 1,184, 16 bytes): ASCII, A-Z and 0-9 only, 1 to 10 characters, zero-padded. The first
 zero byte ends it. initialize writes it once and nothing changes it after.
@@ -238,8 +269,8 @@ How the graduation fields are used:
 
 ## Instructions
 
-The first byte of the instruction data is the tag. Every instruction except `initialize` and `load_brain`
-is the tag byte alone. `(w)` means writable, `(s)` means signer.
+The first byte of the instruction data is the tag. Every instruction except `initialize`, `load_brain` and
+`withdraw_budget` is the tag byte alone. `(w)` means writable, `(s)` means signer.
 
 | tag | name |
 |---|---|
@@ -255,6 +286,7 @@ is the tag byte alone. `(w)` means writable, `(s)` means signer.
 | 9 | `adopt_pool` |
 | 10 | `buy_and_burn_pool` |
 | 11 | `claim_pool_fees` |
+| 12 | `withdraw_budget` |
 | 0xE4 | `event` |
 
 ### Addresses
@@ -362,11 +394,72 @@ Accounts: 0 state (w), 1 budget, 2 budget WSOL (w), 3 budget coin account (w), 4
 6 DAMM v2 pool, 7 DAMM v2 pool authority, 8 token A vault (w), 9 token B vault (w), 10 position (w), 11 position
 NFT account, 12 DAMM v2 event authority, 13 DAMM v2 program, 14 token program.
 
+### 12 `withdraw_budget`: the upgrade authority only, top level (never by CPI), in the curve, graduating or pool phase
+
+Added 2026-10-20. The developer moves the budget to their own wallet. They say they use it to buy the coin
+and burn it by hand; the program does not check what happens to the SOL after it leaves.
+
+Data, exactly 10 bytes (anything else is `InvalidInstructionData`):
+
+| offset | size | field |
+|---:|---:|---|
+| 0 | 1 | tag, 12 |
+| 1 | 1 | the programdata bump (the loader's PDA `[program id]`), as initialize takes it |
+| 2 | 8 | the amount in lamports, u64 LE; 0 means the whole balance |
+
+Accounts, the first 15 in every phase: 0 the upgrade authority (s), 1 programdata, 2 state (w), 3 open call
+(w), 4 budget, 5 budget WSOL (w), 6 budget coin account (w; Meteora's claim names it, Hunch does not move
+it), 7 the coin's mint, 8 WSOL mint, 9 the signer's WSOL account (w: an SPL Token account of WSOL whose owner
+is the signer, error 4 otherwise), 10 token program, 11 instructions sysvar, 12 SPL Memo program, 13 Hunch
+event authority, 14 the Hunch program. Then, on the curve and while graduating: 15 DBC pool (w), 16 DBC
+config, 17 DBC base vault (w), 18 DBC quote vault (w), 19 DBC pool authority, 20 DBC event authority, 21 DBC
+program (22 accounts). In the pool phase: 15 DAMM v2 pool, 16 DAMM v2 pool authority, 17 token A vault (w),
+18 token B vault (w), 19 Hunch's adopted position (w), 20 its NFT account, 21 DAMM v2 event authority,
+22 DAMM v2 program (23 accounts). The phase is read from State; the accounts must be the pinned ones (error 4).
+
+Order of checks: data length; called by CPI (1) or not the top-level instruction being run (3); the signer
+and ProgramData (6, exactly initialize's check: ProgramData at the loader's PDA with this bump, owned by the
+loader, naming the signer as upgrade authority); the program, memo, open call and event authority accounts
+(4); the destination (4); the phase (8 before adoption); the pinned pool accounts (4). Other instructions may
+share the transaction (the developer's script creates its WSOL account first and closes it after, so the SOL
+arrives as plain SOL).
+
+Then: sync_native on the budget's WSOL account; the claim, as the hourly buy makes it (curve and graduating:
+DBC `claim_creator_trading_fee2`, the budget signing as the pool's creator; pool: DAMM v2
+`claim_position_fee` on Hunch's own position, the budget signing as its NFT's owner); `held` = the WSOL
+account's amount after the claim. `held` = 0 is error 31. The amount (all of `held` when the data says 0)
+above `held` is error 32. Then one SPL Token `transfer` of the amount from the budget's WSOL account to the
+signer's, signed by the budget PDA. The budget's WSOL and coin accounts stay open and pinned; the coin account
+is not touched.
+
+Writes: `withdrawn` (+ amount), `withdrawals` (+1), `last_withdraw_hour`; what the claim paid, in `claimed`
+(curve, graduating) or `pool_claimed` (pool), as the hourly buy counts it; the open call's `budget` (what is
+left in the WSOL account, plus anything DBC still holds as creator fee). It never writes `hs_*`, `spent`,
+`burned`, `buys`, `bought_units`, `last_buy_hour`, `last_buy_ts`, `buy_day`, `day_buys`, `day_spent`,
+`day_cap`, `skips`, the tape, the diary or the brain book. The hourly buy in the same hour or later runs as it
+would have with that budget (the LiteSVM tests compare it byte for byte with the deployed build from the
+same accounts).
+
+Event 6 (`WITHDRAW`), 76 bytes after the kind: amount u64, held after the claim u64, claimed u64, left in the
+budget's WSOL u64, lifetime `withdrawn` u64, `withdrawals` u32, the signer's address [32]. Memo (SPL Memo by
+CPI, ticker from State), for example `the developer withdrew 5.381 SOL from my budget to their wallet. They
+say they use it to buy POOTER and burn it by hand.` (the amount truncated to 3 decimals).
+
+What it never moves: DBC's partner fee (the config's fee claimer's, the developer's own) and protocol fee,
+the pool's reserves, every other DAMM v2 position (the developer's locked one included), and anything of the
+signer's: its lamports change only by the transaction fee and the WSOL it receives.
+
+While Meteora has the DAMM v2 pool paused, the withdrawal still works: DAMM v2 allows the position's fee claim
+then (checked in LiteSVM against the mainnet bytecode). The hourly buy is refused while paused (27), as before.
+In the pool phase, creator fee still owed on the old DBC curve is not claimed by tag 12;
+`scripts/withdraw-budget.mjs` puts a `claim_curve_fees` (tag 5) before it in the same transaction when there is
+some.
+
 ### 0xE4 `event`: self-CPI only
 
 Hunch's events as inner instructions: data `[0xE4, kind, payload...]`, accounts 0 event authority (s),
-1 instructions sysvar. Kinds: 1 bar, 2 diary entry, 3 weights, 4 buy, 5 wait. Any other caller gets
-error 23. A refused second wait emits nothing (the transaction fails).
+1 instructions sysvar. Kinds: 1 bar, 2 diary entry, 3 weights, 4 buy, 5 wait, 6 withdrawal
+(withdraw_budget). Any other caller gets error 23. A refused second wait emits nothing (the transaction fails).
 
 ## Errors
 
@@ -378,7 +471,7 @@ error 23. A refused second wait emits nothing (the transaction fails).
 | 2 | `NOT_ALONE` | the transaction holds another instruction that is not ComputeBudget |
 | 3 | `NOT_TOP_LEVEL` | the top-level instruction being run is not Hunch's |
 | 4 | `WRONG_ACCOUNT` | an account is not the one expected (address, owner, size or tag) |
-| 6 | `NOT_AUTHORITY` | the signer is not the program's upgrade authority (initialize, load_brain) |
+| 6 | `NOT_AUTHORITY` | the signer is not the program's upgrade authority (initialize, load_brain, withdraw_budget) |
 | 7 | `ALREADY_INITIALIZED` | initialize already ran |
 | 8 | `WRONG_PHASE` | not allowed in the current phase (before adoption, after it, while graduating) |
 | 9 | `POOL_MISMATCH` | adopt_curve: the pool is not Hunch's (mint, creator not the budget PDA, migrated, layout) |
@@ -403,6 +496,8 @@ error 23. A refused second wait emits nothing (the transaction fails).
 | 28 | `ALREADY_WAITED_THIS_HOUR` | buy (either phase): this hour already recorded a wait and this call would wait again; nothing changed. A call in the same hour that can buy is still allowed |
 | 29 | `BAD_TICKER` | initialize: the ticker is not 1 to 10 characters of A-Z and 0-9 |
 | 30 | `FEE_RAISED` | buy_and_burn_pool: the pool's fee is above the fee at adoption (`adopt_fee_num`), or one Hunch cannot model (a dynamic fee, a fee schedule still running); nothing changed, the budget waits for the fee to return. A lower fee is not refused |
+| 31 | `NOTHING_TO_WITHDRAW` | withdraw_budget: the budget's WSOL account holds nothing, even after the claim |
+| 32 | `AMOUNT_TOO_HIGH` | withdraw_budget: the amount asked for is more than the budget's WSOL account holds after the claim |
 
 Code 5 is unused (it was the stage-1 proof's `NOTHING_TO_SPEND`). The runtime's own errors also appear:
 `InvalidInstructionData` (unknown tag, or initialize's or load_brain's data length), `NotEnoughAccountKeys`,

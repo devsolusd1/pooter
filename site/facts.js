@@ -8,8 +8,10 @@ import { CHAPTER_HOURS } from "./core/net.js";
 export const NAME = CONFIG.name;
 export const TICKER = CONFIG.ticker;
 
-// Each trade's 3.75% fee. `me` is the share only the program can spend, on buying the coin and burning it.
-export const ROUTE_LINE = `Each trade pays a 3.75% fee; 0.99% of it comes to me, and I can only spend it buying ${TICKER} and burning it.`;
+// Each trade's 3.75% fee. `me` is the budget: the program spends it buying the coin and burning it, and the
+// developer can move it to their wallet (withdraw_budget, since 2026-10-20).
+export const ROUTE_LINE = `Each trade pays a 3.75% fee; 0.99% of it comes to me. I spend it buying ${TICKER} and burning it, and the developer can move it to their wallet.`;
+export const DEV_MOVES = `The developer can also move my budget to their wallet. They say they use it to buy ${TICKER} and burn it by hand. Every move is on chain.`;
 export const UPDATABLE = "The developer can update the program.";
 export const INTENT = `The developer says they will not sell ${TICKER} unless the coin is already dead.`;
 export const OWN_BUYS = `My own buys pay the same 3.75% as anyone's, and 0.99% of it comes back to me.`;
@@ -31,7 +33,7 @@ export const STUDY = [
 // Graduation, as the program does it (adopt_pool and the pool phase), the same words in both modes.
 export const GRADUATION = [
   "Meteora moves the coin to a DAMM v2 pool with the same 3.75% fee. Its liquidity is locked for good, a third of it mine, so 0.99% of each trade still comes to me.",
-  `I keep learning there. My record on the curve is kept, and a new one starts in the new pool after a two-hour warm-up. I still spend my share only on buying ${TICKER} and burning it.`,
+  `I keep learning there. My record on the curve is kept, and a new one starts in the new pool after a two-hour warm-up. I still spend my share buying ${TICKER} and burning it, and the developer can still move it to their wallet.`,
 ];
 
 export const solscan = (address) => `https://solscan.io/account/${address}`;

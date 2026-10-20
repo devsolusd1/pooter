@@ -54,6 +54,9 @@ export const ST = {
   ticker: 1184,
   // the DBC config's migration_sqrt_price, pinned by adopt_curve (the review fix of 2026-10-16)
   migrationSqrtPrice: 1200,
+  // withdraw_budget (2026-10-20), from the reserve (zero until the first one): the lamports the developer has
+  // moved from the budget to their wallet in all, how many times, and the unix hour of the last time
+  withdrawn: 1216, withdrawals: 1224, lastWithdrawHour: 1228,
 };
 export const TICKER_BYTES = 16;
 
@@ -153,6 +156,7 @@ export function decodeState(b) {
     prevN: r.u32(o.prevN), prevHits: r.u32(o.prevHits), prevRuleHits: r.u32(o.prevRuleHits), prevForfeits: r.u32(o.prevForfeits),
     prevNotScored: r.u32(o.prevNotScored), lastStatus: r.u8(o.lastStatus), distCur: r.u8(o.distCur), distPrev: r.u8(o.distPrev),
     gradLine: r.u8(o.gradLine), migrationSqrtPrice: r.u128(o.migrationSqrtPrice),
+    withdrawn: r.u64(o.withdrawn), withdrawals: r.u32(o.withdrawals), lastWithdrawHour: r.u32(o.lastWithdrawHour),
   };
 }
 

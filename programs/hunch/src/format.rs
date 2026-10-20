@@ -105,6 +105,19 @@ impl Line {
     }
 }
 
+/// The memo line of withdraw_budget, in the coin's voice; `ticker` is the stored one.
+/// "the developer withdrew 5.381 SOL from my budget to their wallet. They say they use it to buy POOTER and
+/// burn it by hand."
+pub fn withdraw_line(lamports: u64, ticker: &[u8]) -> Line {
+    let mut l = Line::default();
+    l.text(b"the developer withdrew ");
+    l.sol3(lamports);
+    l.text(b" SOL from my budget to their wallet. They say they use it to buy ");
+    l.text(ticker);
+    l.text(b" and burn it by hand.");
+    l
+}
+
 /// The diary line of an entry; `ticker` is the coin's (State.ticker, "HUNCH" in the vectors).
 pub fn diary_line(e: &Entry, ticker: &[u8]) -> Line {
     let mut l = Line::default();

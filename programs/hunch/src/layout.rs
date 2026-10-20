@@ -160,7 +160,13 @@ pub struct State {
     /// measures Hunch's position against the liquidity DBC's migration builds from it and
     /// migration_quote_threshold.
     pub migration_sqrt_price: [u64; 2],
-    pub reserved: [u64; 4],
+    /// withdraw_budget (added 2026-10-20, taken from the reserve, which a live State holds at zero): the
+    /// lamports the developer has moved from the budget to their wallet in all, how many times, and the
+    /// unix hour of the last time. Nothing else counts them: they are not in `spent`, `burned` or `buys`.
+    pub withdrawn: u64,
+    pub withdrawals: u32,
+    pub last_withdraw_hour: u32,
+    pub reserved: [u64; 2],
 }
 
 pub const STATE_LEN: usize = core::mem::size_of::<State>();

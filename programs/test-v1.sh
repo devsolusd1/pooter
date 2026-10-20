@@ -19,7 +19,15 @@
 #                                     withdraw_surplus, withdraw_leftover, adopt_pool (and the outside pools
 #                                     and positions it refuses), ticks, claim_pool_fees and buy_and_burn_pool
 #                                     on the migrated pool, liquidity added just before a buy, Meteora's fee
-#                                     change and pause;
+#                                     change and pause; withdraw_budget, the developer's withdrawal, on the
+#                                     curve (withdraw.rs), while graduating and on the pool (graduation.rs):
+#                                     only the upgrade authority and never by CPI, exactly the budget's WSOL
+#                                     plus the fee it claims and nothing else, the refusals, and the hourly
+#                                     buy after it compared byte for byte with the deployed build
+#                                     (OLD_HUNCH_SO, ~/hunch-target/final/hunch.so, sha256 face57dd...; dumped
+#                                     from mainnet when missing); and upgrade_live.rs: the new build on the
+#                                     LIVE mainnet accounts (cloned read-only by tests/clone-live.mjs into
+#                                     $target/live-clone when missing; LIVE_REFRESH=1 clones them again);
 # 6. k5-caps.mjs, k7-crank.mjs        K5's cap report over the replay; K7: the record against the rule, the
 #                                     majority and the luck band on 7 coins, and what every cranker
 #                                     strategy (seconds, skips) does to it.
@@ -59,6 +67,16 @@ export DBC_SO="${DBC_SO:-$mainnet/dbc-0.2.2.so}"
 export HUNCH_SO="${HUNCH_SO:-$target/deploy/hunch.so}" HUNCH_WIDE_SO="${HUNCH_WIDE_SO:-$target/deploy-wide/hunch.so}"
 export PROBE_SO="${PROBE_SO:-$target/deploy/hunch_cpi_probe.so}" MPL_SO="$mainnet/mpl_token_metadata.so" MEMO_SO="$mainnet/memo.so"
 export DAMM_SO="$mainnet/damm_v2.so" TOKEN_2022_SO="$mainnet/token_2022.so" MAINNET_ACCOUNTS="$accounts"
+# the deployed build (the twin tests run it beside the new one) and the live accounts (upgrade_live.rs)
+deployed_sha=face57ddb4950ebf82a787cc5c80266dd2a631353c160e40ee2bfca0eb480f0f
+export OLD_HUNCH_SO="${OLD_HUNCH_SO:-$HOME/hunch-target/final/hunch.so}"
+if [ ! -s "$OLD_HUNCH_SO" ]; then
+  OLD_HUNCH_SO="$mainnet/pooter-deployed.so"
+  [ -s "$OLD_HUNCH_SO" ] || solana program dump -u m CCw2e4MgnZ3opEddVX4oJHkWJye81gARqEC1535hPaY1 "$OLD_HUNCH_SO"
+fi
+echo "deployed build: $OLD_HUNCH_SO, sha256 $(sha256sum "$OLD_HUNCH_SO" | cut -c1-64) (mainnet's since 2026-10-20: $deployed_sha)"
+export LIVE_ACCOUNTS="${LIVE_ACCOUNTS:-$target/live-clone}"
+if [ -n "${LIVE_REFRESH:-}" ] || [ ! -s "$LIVE_ACCOUNTS/index.json" ]; then node tests/clone-live.mjs "$LIVE_ACCOUNTS"; fi
 dbc_sha="$(sha256sum "$DBC_SO" | cut -c1-64)"
 if [ "$dbc_sha" = "$dbc_022_sha" ]; then echo "DBC: $DBC_SO, sha256 $dbc_sha (Meteora's 0.2.2 build)"
 else echo "DBC: $DBC_SO, sha256 $dbc_sha: NOT the 0.2.2 build ($dbc_022_sha)"; fi

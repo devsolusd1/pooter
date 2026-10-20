@@ -5,10 +5,13 @@
 //! Graduation: withdraw_surplus (DBC creator_withdraw_surplus into the budget); adopt_pool (the DAMM v2
 //! pool DBC's migration made, and Hunch's position in it); tick on that pool; claim_pool_fees (DAMM v2
 //! claim_position_fee by the budget as the NFT owner); buy_and_burn_pool (DAMM v2 swap2).
+//! The developer's withdrawal (added 2026-10-20): withdraw_budget (upgrade authority only, top level):
+//! the claim, then the budget's WSOL to a WSOL account the signer owns.
 //! Every value movement is one of: rent paid by callers into accounts the program creates, the
 //! creator-fee, surplus and position-fee claims into the budget's own two token accounts, sync_native, a
-//! DBC or DAMM v2 swap from the budget's WSOL into the budget's HUNCH account, and a burn of the budget's
-//! HUNCH (which also burns any HUNCH sent there, DBC's leftover included).
+//! DBC or DAMM v2 swap from the budget's WSOL into the budget's HUNCH account, a burn of the budget's
+//! HUNCH (which also burns any HUNCH sent there, DBC's leftover included), and withdraw_budget's SPL Token
+//! transfer of the budget's WSOL to the upgrade authority's own WSOL account.
 
 use {
     crate::{format::*, ids::*, layout::*, rules::*},
@@ -45,6 +48,7 @@ pub fn process_instruction(program_id: &Address, accounts: &mut [AccountView], d
         Some(&tag::ADOPT_POOL) => adopt_pool(program_id, accounts),
         Some(&tag::INITIALIZE) => initialize(program_id, accounts, data),
         Some(&tag::LOAD_BRAIN) => load_brain(program_id, accounts, data),
+        Some(&tag::WITHDRAW_BUDGET) => withdraw_budget(program_id, accounts, data),
         _ => Err(ProgramError::InvalidInstructionData),
     }
 }
@@ -121,6 +125,20 @@ fn check_alone(program_id: &Address, sysvar: &AccountView) -> ProgramResult {
         } else if program != &COMPUTE_BUDGET {
             return Err(fail(err::NOT_ALONE));
         }
+    }
+    Ok(())
+}
+
+/// Refuses a call by CPI: the instruction must run at stack height 1 and be the top-level instruction
+/// being executed. Unlike check_alone, other instructions may share the transaction.
+fn check_top_level(program_id: &Address, sysvar: &AccountView) -> ProgramResult {
+    if stack_height() != 1 {
+        return Err(fail(err::CALLED_BY_CPI));
+    }
+    let instructions = Instructions::try_from(sysvar)?;
+    let top = instructions.load_instruction_at(instructions.load_current_index() as usize)?;
+    if top.get_program_id() != program_id {
+        return Err(fail(err::NOT_TOP_LEVEL));
     }
     Ok(())
 }
@@ -2294,4 +2312,146 @@ fn grow_brain_book(program_id: &Address, accounts: &mut [AccountView]) -> Progra
     let mut d = own(program_id, book_a, BOOK_HEADER, &BOOK_TAG)?;
     wr_u32(&mut d, 12, (capacity + BOOK_STEP) as u32);
     Ok(())
+}
+
+// ------------------------------------------------------------------------------------------------
+// withdraw_budget: the developer moves the budget to their own wallet (added 2026-10-20)
+// ------------------------------------------------------------------------------------------------
+
+/// SPL Token transfer of `amount` from the budget's WSOL account to `to`, signed by the budget PDA.
+fn transfer_wsol(from: &AccountView, to: &AccountView, budget: &AccountView, signer: &[Signer], amount: u64) -> ProgramResult {
+    let mut data = [0u8; 9];
+    data[0] = 3;
+    data[1..9].copy_from_slice(&amount.to_le_bytes());
+    let metas = [InstructionAccount::writable(from.address()), InstructionAccount::writable(to.address()), InstructionAccount::readonly_signer(budget.address())];
+    invoke_signed::<3, &AccountView>(&InstructionView { program_id: &TOKEN, data: &data, accounts: &metas }, &[from, to, budget], signer)
+}
+
+/// `withdraw_budget(programdata bump, amount)`: the program's upgrade authority only (named in the
+/// ProgramData account, checked exactly as initialize checks it), top level (never by CPI; other
+/// instructions may share the transaction, so the developer's script can unwrap the WSOL in the same one),
+/// in the curve, graduating or pool phase.
+/// It first claims what is owed to the budget, as the hourly buy does: on the curve and while graduating,
+/// DBC claim_creator_trading_fee2 (the budget signs as the pool's creator); in the pool phase, DAMM v2
+/// claim_position_fee on Hunch's own adopted position (the budget signs as its NFT's owner). Then it moves
+/// `amount` lamports of the budget's WSOL (0: the whole balance, after sync_native and the claim) to a WSOL
+/// token account the signer owns, by an SPL Token transfer the budget PDA signs.
+/// Nothing else moves: DBC's partner and protocol fees, the pools' reserves and every other position are
+/// left to Meteora's own claim rules, the budget's coin account is not touched (the next hourly buy burns
+/// what it holds), and the budget's two accounts stay open and pinned, so the hourly buy goes on with
+/// whatever fee arrives later.
+/// Writes: `withdrawn` (+ amount), `withdrawals` (+1), `last_withdraw_hour`, what the claim paid (`claimed`
+/// on the curve and while graduating, `pool_claimed` in the pool phase, as the hourly buy counts it), and
+/// the open call's `budget` (what is left to spend). Never the hour's fields (hs_*), `spent`, `burned`,
+/// `buys`, the day's spend, the tape or the diary. Event 6 and one memo line.
+/// Data: tag, programdata bump, amount in lamports (u64 LE, 0 for everything); exactly 10 bytes.
+/// Accounts: 0 upgrade authority (signer), 1 programdata, 2 state (w), 3 open call (w), 4 budget,
+/// 5 budget WSOL (w), 6 budget coin account (w), 7 coin mint, 8 WSOL mint, 9 the signer's WSOL account (w),
+/// 10 token program, 11 instructions sysvar, 12 SPL Memo, 13 Hunch event authority, 14 Hunch program; then
+/// on the curve and while graduating: 15 DBC pool (w), 16 DBC config, 17 base vault (w), 18 quote vault (w),
+/// 19 DBC pool authority, 20 DBC event authority, 21 DBC program; in the pool phase: 15 DAMM v2 pool,
+/// 16 DAMM v2 pool authority, 17 token A vault (w), 18 token B vault (w), 19 Hunch's position (w), 20 its NFT
+/// account, 21 DAMM v2 event authority, 22 DAMM v2 program.
+#[inline(never)]
+fn withdraw_budget(program_id: &Address, accounts: &mut [AccountView], data: &[u8]) -> ProgramResult {
+    let [authority, programdata, state_a, signal_a, budget, wsol_acc, hunch_acc, mint, wsol_mint, dest, token, sysvar, memo_a, event_a, prog, rest @ ..] = &mut *accounts else {
+        return Err(ProgramError::NotEnoughAccountKeys);
+    };
+    if data.len() != 10 {
+        return Err(ProgramError::InvalidInstructionData);
+    }
+    check_top_level(program_id, sysvar)?;
+    check_upgrade_authority(program_id, authority, programdata, data[1])?;
+    let ask = rd_u64(data, 2);
+    expect_id(prog, program_id)?;
+    expect_id(memo_a, &MEMO)?;
+    let (phase_now, budget_bump, event_bump) = {
+        let sd = own_ro(program_id, state_a, STATE_LEN, &STATE_TAG)?;
+        let st = as_state_ro(&sd);
+        expect(signal_a, &st.signal)?;
+        expect(event_a, &st.event_authority)?;
+        (st.phase, st.budget_bump, st.event_bump)
+    };
+    // the destination: an SPL Token account of WSOL whose owner is the signer
+    token_amount(dest, WSOL.as_ref(), authority.address().as_ref())?;
+    let now = Clock::get()?.unix_timestamp;
+    let bump_seed = [budget_bump];
+    let seeds_ = [Seed::from(seeds::BUDGET), Seed::from(&bump_seed)];
+    let signer = [Signer::from(&seeds_)];
+    let budget_key = budget.address().as_ref();
+
+    // ---- the claim (after sync_native: SOL sent straight to the WSOL account joins the budget; only
+    //      what the claim paid counts as claimed) ----
+    let (held, claimed, on_curve) = match phase_now {
+        phase::CURVE | phase::GRADUATING => {
+            let [pool, config, base_vault, quote_vault, pool_authority, dbc_ev, dbc, ..] = rest else {
+                return Err(ProgramError::NotEnoughAccountKeys);
+            };
+            let a = DbcAccounts { budget, wsol_acc, hunch_acc, mint, wsol_mint, pool, config, base_vault, quote_vault, pool_authority, event_authority: dbc_ev, dbc, token };
+            {
+                let sd = own_ro(program_id, state_a, STATE_LEN, &STATE_TAG)?;
+                check_dbc_accounts(as_state_ro(&sd), &a)?;
+            }
+            sync_native(a.wsol_acc)?;
+            let before = token_amount(a.wsol_acc, WSOL.as_ref(), budget_key)?;
+            claim(&a, &signer)?;
+            let held = token_amount(a.wsol_acc, WSOL.as_ref(), budget_key)?;
+            // what is still owed on the curve after the claim (0 unless DBC held some back)
+            let left_on_curve = read_pool(a.pool)?.map(|p| p.creator_fee).unwrap_or(0);
+            (held, held.saturating_sub(before), left_on_curve)
+        }
+        phase::POOL => {
+            let [pool, pool_authority, vault_a, vault_b, position, nft, damm_ev, damm, ..] = rest else {
+                return Err(ProgramError::NotEnoughAccountKeys);
+            };
+            let a = DammAccounts { budget, wsol_acc, hunch_acc, mint, wsol_mint, pool, pool_authority, vault_a, vault_b, position, nft, event_authority: damm_ev, damm, token };
+            {
+                let sd = own_ro(program_id, state_a, STATE_LEN, &STATE_TAG)?;
+                check_damm_accounts(as_state_ro(&sd), &a, true)?;
+            }
+            sync_native(a.wsol_acc)?;
+            let before = token_amount(a.wsol_acc, WSOL.as_ref(), budget_key)?;
+            claim_position(&a, &signer)?;
+            let held = token_amount(a.wsol_acc, WSOL.as_ref(), budget_key)?;
+            (held, held.saturating_sub(before), 0)
+        }
+        _ => return Err(fail(err::WRONG_PHASE)),
+    };
+
+    // ---- the transfer ----
+    if held == 0 {
+        return Err(fail(err::NOTHING_TO_WITHDRAW));
+    }
+    let amount = if ask == 0 { held } else { ask };
+    if amount > held {
+        return Err(fail(err::AMOUNT_TOO_HIGH));
+    }
+    transfer_wsol(wsol_acc, dest, budget, &signer, amount)?;
+    let left = token_amount(wsol_acc, WSOL.as_ref(), budget_key)?;
+
+    // ---- the record: the lifetime total and count, the claim, the open call's budget ----
+    let (total, count, line) = {
+        let mut sd = own(program_id, state_a, STATE_LEN, &STATE_TAG)?;
+        let st = as_state(&mut sd);
+        add_claimed(st, claimed);
+        st.withdrawn = st.withdrawn.saturating_add(amount);
+        st.withdrawals = st.withdrawals.saturating_add(1);
+        st.last_withdraw_hour = (now / HOUR) as u32;
+        let mut sgd = own(program_id, signal_a, SIGNAL_LEN, &SIGNAL_TAG)?;
+        wr_u64(&mut sgd, sig::BUDGET, left.saturating_add(on_curve));
+        (st.withdrawn, st.withdrawals, withdraw_line(amount, ticker_of(st)))
+    };
+    // event 6: amount, held after the claim, claimed, left, lifetime total, count, the signer
+    let mut ev = [0u8; 2 + 8 * 5 + 4 + 32];
+    ev[0] = tag::EVENT;
+    ev[1] = event::WITHDRAW;
+    wr_u64(&mut ev, 2, amount);
+    wr_u64(&mut ev, 10, held);
+    wr_u64(&mut ev, 18, claimed);
+    wr_u64(&mut ev, 26, left);
+    wr_u64(&mut ev, 34, total);
+    wr_u32(&mut ev, 42, count);
+    ev[46..78].copy_from_slice(authority.address().as_ref());
+    emit(program_id, event_a, sysvar, event_bump, &ev)?;
+    memo(memo_a, line.as_bytes())
 }

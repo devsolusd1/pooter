@@ -119,6 +119,9 @@ pub mod tag {
     pub const ADOPT_POOL: u8 = 9;
     pub const BUY_AND_BURN_POOL: u8 = 10;
     pub const CLAIM_POOL_FEES: u8 = 11;
+    /// The developer's withdrawal (added 2026-10-20): the upgrade authority only, top level. Claims the fee
+    /// owed to the budget, then moves the budget's WSOL to a WSOL account the signer owns.
+    pub const WITHDRAW_BUDGET: u8 = 12;
     /// Self-CPI that carries an event (signed by the event authority PDA); never top level.
     pub const EVENT: u8 = 0xE4;
 }
@@ -130,6 +133,8 @@ pub mod event {
     pub const WEIGHTS: u8 = 3;
     pub const BUY: u8 = 4;
     pub const SKIP: u8 = 5;
+    /// withdraw_budget: the developer moved SOL from the budget to their own WSOL account.
+    pub const WITHDRAW: u8 = 6;
 }
 
 /// Custom error codes (`ProgramError::Custom`).
@@ -196,4 +201,8 @@ pub mod err {
     /// buy_and_burn_pool: the pool's fee is above the fee at adoption, or one Hunch cannot model (a dynamic
     /// fee, a fee schedule); nothing changes and the budget waits for the fee to return.
     pub const FEE_RAISED: u32 = 30;
+    /// withdraw_budget: the budget's WSOL account holds nothing, even after the claim.
+    pub const NOTHING_TO_WITHDRAW: u32 = 31;
+    /// withdraw_budget: the amount asked for is more than the budget's WSOL account holds after the claim.
+    pub const AMOUNT_TOO_HIGH: u32 = 32;
 }

@@ -4,7 +4,7 @@
 // "open" when it is shown, "theme").
 
 import { el, sv, anim, more, openMore, recordWords, weightAlpha, paintBrain, readTheme } from "./ui.js";
-import { NAME, TICKER, INTENT, UPDATABLE, OWN_BUYS, CHAPTERS, STUDY, GRADUATION, solscan, short } from "./facts.js";
+import { NAME, TICKER, INTENT, UPDATABLE, OWN_BUYS, DEV_MOVES, CHAPTERS, STUDY, GRADUATION, solscan, short } from "./facts.js";
 
 const p = (text, cls) => el("p", { class: cls, text });
 const link = (address, text = short(address)) => el("a", { href: solscan(address), target: "_blank", rel: "noopener", class: "addr", text });
@@ -169,18 +169,22 @@ function howView(root, ctx) {
 
 // ---------------------------------------------------------------- buy and burn
 function burnView(root, ctx) {
-  const today = p("", "say"), hour = p("", "fine"), body = el("div"), routeNote = p("", "fine");
+  const today = p("", "say"), hour = p("", "fine"), moved = p("", "fine"), body = el("div"), routeNote = p("", "fine");
   const [howB, howBody] = more("drip", "How big is each buy?", body);
   root.append(
     el("div", { class: "panel route" },
-      el("p", { class: "say" }, el("b", { class: "acc", text: "0.99%" }), ` of every trade comes to me. I can only spend it buying ${TICKER} and burning it.`),
+      el("p", { class: "say" }, el("b", { class: "acc", text: "0.99%" }), ` of every trade comes to me. I spend it buying ${TICKER} and burning it.`),
+      p(DEV_MOVES, "fine"),
       routeNote),
-    el("div", { class: "panel" }, today, hour, howB, howBody));
+    el("div", { class: "panel" }, today, hour, moved, howB, howBody));
   return {
     update(S, why) {
       const B = S.burn;
       today.textContent = B.today;
       hour.textContent = B.hour;
+      // live: what I spent and burned myself, and what the developer moved to their wallet (from my state)
+      moved.textContent = B.moved ?? "";
+      moved.hidden = !B.moved;
       routeNote.textContent = B.route ?? "";
       routeNote.hidden = !B.route;
       if (changed(why)) body.replaceChildren(
@@ -190,7 +194,7 @@ function burnView(root, ctx) {
         p(B.held),
         p("Does my call make the buying smarter? No. In a replay before launch, a plain drip that ignored my call did about as well."),
         p(OWN_BUYS),
-        p(`Only the program can spend this budget, and only on buying ${TICKER} and burning it. ${UPDATABLE}`));
+        p(`I spend this budget only on buying ${TICKER} and burning it. Once the developer moves some to their wallet, I can’t check what they do with it. ${UPDATABLE}`));
     },
   };
 }
@@ -268,9 +272,10 @@ function faqView(root, ctx) {
         qa("price", "Do you predict the price?", p("No. I call activity: whether the next hour will be busier or quieter than the last. On price, tests found nothing better than chance.")),
         qa("signal", "Is your call a trading signal?", p("No. It is not advice and not a signal to trade. It is one public guess an hour, scored in the open, next to a coin flip and a simple rule.")),
         qa("rule", "What is the simple rule?", p("“Busier if the last hour was quieter than usual.” I do about as well as it, never better.")),
-        qa("fee", "Who gets the fee?", p(`Each trade pays 3.75%. Meteora keeps 0.75%, 0.99% comes to me (I can only spend it buying ${TICKER} and burning it), and the rest goes to the developer.`)),
+        qa("fee", "Who gets the fee?", p(`Each trade pays 3.75%. Meteora keeps 0.75%, 0.99% comes to me (I spend it buying ${TICKER} and burning it, and the developer can move it to their wallet), and the rest goes to the developer.`)),
         qa("graduation", "What happens when the curve is complete?", ...GRADUATION.map((t) => p(t))),
         qa("sell", "Will the developer sell?", el("p", {}, INTENT, ...(F.developer ? [" Their wallet: ", link(F.developer), "."] : []))),
+        qa("moves", "Can the developer take your budget?", p(`Yes. ${DEV_MOVES.replace("can also move", "can move")}`), ...(F.moved ? [p(F.moved)] : [])),
         qa("update", "Can the developer change you?", el("p", {}, F.upgrade)),
         qa("live", "Is this live?", ...F.live),
         qa("later", "What changes later?", el("ul", {}, CHAPTERS.map((c, i) => el("li", {}, el("b", { text: F.chapterDates?.[i] ?? `Day ${c.day}` }), `: ${c.what}.`))),
@@ -283,7 +288,7 @@ function faqView(root, ctx) {
 export const VIEWS = [
   { id: "now", label: "Now", make: nowView, voice: () => `I’m ${NAME}, a tiny neural network in a Solana coin. Each hour I call it: busier or quieter?` },
   { id: "how", label: "How it works", make: howView, voice: () => "Three things, over and over, inside a Solana program. No server." },
-  { id: "burn", label: "Buy and burn", make: burnView, voice: () => `A slice of every trade comes to me. I can only spend it buying ${TICKER} and burning it.` },
+  { id: "burn", label: "Buy and burn", make: burnView, voice: () => `A slice of every trade comes to me. I spend it buying ${TICKER} and burning it.` },
   { id: "diary", label: "Diary", make: diaryView, voice: (S) => (S?.mode === "live" ? "Every hour I write one line on chain." : "Every hour I write one line.") },
   { id: "photo", label: "Brain photo", make: photoView, voice: () => "Once a day I take a photo of my brain: 169 numbers, one square each." },
   { id: "faq", label: "Questions", make: faqView, voice: () => "Fair questions. Short answers." },

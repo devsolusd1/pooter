@@ -1,0 +1,26 @@
+{
+  "cluster": "mainnet-beta",
+  "mint": "GWfA58i1zzcwgB4C5UCrRoSod35on5mrCPipqM8poot",
+  "pool": "2QwsNBQWj9rtCr2oMvoB8Jsrn1gPc5PERXi23Us2hYee",
+  "config": "PnhMHm9kqKshyC9f1xFgekjh7Mv1Qsp6tYk4zxZTagQ",
+  "owner": "G3gsMr4yEdxDjuCD4v7nJjKKrHig7Ytt6ubJ6LkC2bgm",
+  "programId": "CCw2e4MgnZ3opEddVX4oJHkWJye81gARqEC1535hPaY1",
+  "budget": "7ppGZ7ep5PtxM1HiUH4xoCC3qAGRsFrb2Y1HgxEzpE9",
+  "ticker": "POOTER",
+  "signature": "4bSJSxRAc1kZfKic6ztSyhDRNfwUeegirGh9N65nmkRFqqLcZYsWGRyvfqHT5978zpsbAeFY1nhxBh9z2UzSfw5h",
+  "configSignature": "4z76b88C6LApiX3kcsH2w6qZFKdkPkzSAgQFV48EvBtnMW3YQREJzsRLB4f65E2LjoAfyryat2Bt7yb4i2LuCknz",
+  "solUsdAtConfig": 105.87768530544443,
+  "startUsd": 7000,
+  "graduationUsd": 40000,
+  "curveFeeBps": 375,
+  "poolFeeBps": 375,
+  "openingFeeBps": 5000,
+  "openingFeeSeconds": 5,
+  "creatorSharePct": 33,
+  "devBuy": {
+    "sol": 0.1,
+    "tokens": "1454071.710735",
+    "inStep2": true,
+    "feeLamports": "7113624000"
+  }
+}

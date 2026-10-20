@@ -6,9 +6,15 @@ in public next to a coin flip and a one-line rule, writes one diary line on chai
 every trade's fee buying POOTER from its own pool and burning it. It calls activity, not price, and its
 call is not a signal to trade.
 
-- Fee: 3.75% per trade. Meteora keeps 0.75%, the program's budget gets 0.99% (it can only buy and burn),
-  the rest goes to the developer. An opening fee of 50% falls to 3.75% over the first 5 seconds.
-- The program is upgradeable: the developer can update it. It has not had an outside audit.
+- Fee: 3.75% per trade. Meteora keeps 0.75%, the program's budget gets 0.99% (the program spends it only on
+  buying POOTER and burning it), the rest goes to the developer. An opening fee of 50% falls to 3.75% over the
+  first 5 seconds.
+- The developer's wallet (the program's upgrade authority) can also move the budget to itself with
+  `withdraw_budget` (`scripts/withdraw-budget.mjs`, added 2026-10-20). The developer says they use it to buy
+  POOTER and burn it by hand (`scripts/burn.mjs`). Every withdrawal is on chain: a memo line, an event, and a
+  lifetime total in the program's state that the site shows. The hourly buy keeps running on later fees.
+- The program is upgradeable: the developer can update it (`scripts/upgrade-program.sh`). It has not had an
+  outside audit.
 - Inside the code the program is still called `hunch` (folders, crates, scripts, account tags).
 
 ## What is here
@@ -21,7 +27,7 @@ call is not a signal to trade.
 | `site/core/` | the JavaScript reference kept in lockstep with the program (`chain.js`, `net.js`) |
 | `launch/` | the launch tool (dry by default, sends only with `SEND=1` and a `STEP`), token settings, metadata and image, `RUNBOOK.md` (in Portuguese) |
 | `crank/` | the crank that ticks the program every ten minutes and runs the hourly buy |
-| `scripts/` | deploy and initialize scripts, the local site server, checks |
+| `scripts/` | deploy, upgrade and initialize scripts; the developer's tools (`withdraw-budget.mjs`, `burn.mjs`, `claim-dev-fees.mjs`) with their local rehearsal (`rehearse-withdraw.sh`); the local site server; checks |
 | `sim/` | the simulation and pool data the network was designed on |
 | `design/layout-final.md` | the program's account layout, instructions and errors |
 

@@ -921,3 +921,199 @@ fn sol_sent_to_the_wsol_account_is_not_counted_as_position_fees() {
     assert!(c1 > c0);
     assert_eq!(p1 - p0, c1 - c0, "pool_claimed counts only the claim");
 }
+
+/// Every instruction Hunch invoked directly in a withdrawal transaction (paid by the authority).
+fn withdraw_cpis(env: &Env, r: &TransactionMetadata) -> BTreeSet<String> {
+    let ixs = env.withdraw_ixs(0);
+    let keys = env.message_keys(&ixs, &env.authority.pubkey());
+    let mut seen = BTreeSet::new();
+    // only Hunch's own instruction's inner instructions (the WSOL account's creation has its own)
+    let at = ixs.iter().position(|ix| ix.program_id == env.hunch).unwrap();
+    for ii in r.inner_instructions[at].iter().filter(|ii| ii.stack_height == 2) {
+        let pid = keys[ii.instruction.program_id_index as usize];
+        let d = &ii.instruction.data;
+        seen.insert(if pid == damm() && d[..8] == hunch::ids::DAMM_CLAIM_POSITION_FEE {
+            "DAMM v2 claim_position_fee".to_string()
+        } else if pid == dbc() && d[..8] == hunch::ids::CLAIM_CREATOR_TRADING_FEE2 {
+            "DBC claim_creator_trading_fee2".to_string()
+        } else if pid == token_program() && d[0] == 17 {
+            "Token sync_native".into()
+        } else if pid == token_program() && d[0] == 3 {
+            "Token transfer".into()
+        } else if pid == memo_program() {
+            "Memo".into()
+        } else if pid == env.hunch {
+            format!("Hunch event {}", d[1])
+        } else {
+            format!("OTHER {pid} {:?}", &d[..d.len().min(8)])
+        });
+    }
+    seen
+}
+
+/// withdraw_budget on the migrated DAMM v2 pool: it claims only Hunch's own position's fee and moves exactly
+/// the budget's WSOL plus that fee to the developer; the developer's (the partner's) locked position and its
+/// NFT, the pool account (reserves, liquidity, price, fee counters) and the coin account holding DBC's leftover
+/// are byte for byte untouched; refused with another position, by anyone else, by CPI; and the hourly
+/// buy_and_burn_pool after it, in the same hour and the next, does exactly what the deployed build does.
+#[test]
+fn the_developer_s_withdrawal_on_the_migrated_pool() {
+    let Graduated { mut env, trader: t, partner, leftover, .. } = adopted();
+    for b in 19..=36 {
+        pool_bar(&mut env, &t, b, SOL / 2);
+    }
+    env.set_clock(H0 + 36 * BAR + 30, 0);
+    let auth = env.authority.pubkey();
+    let ak = env.authority.insecure_clone();
+    let old = old_so();
+    let lam = |env: &Env, a: &Address| env.svm.get_account(a).map(|x| x.lamports).unwrap_or(0);
+    let k = env.damm_keys().clone();
+    // what the position's fee claim pays now, measured on a twin by claim_pool_fees alone
+    let mut probe = env.twin(None);
+    let w0 = probe.token_amount(&probe.budget_wsol);
+    ok(probe.send_payer(&[cu_limit(400_000), probe.claim_pool_ix()]), "claim_pool_fees on a twin");
+    let position_fee = probe.token_amount(&probe.budget_wsol) - w0;
+    let rent = env.svm.minimum_balance_for_rent_exemption(165);
+    let wsol_before = lam(&env, &env.budget_wsol) - rent;
+    let (partner_pos, partner_nft) = (env.data(&partner.position), env.data(&partner.nft));
+    let pool0 = env.data(&k.pool);
+    let (va0, vb0) = (env.token_amount(&k.vault_a), env.token_amount(&k.vault_b));
+    let dev0 = lam(&env, &auth);
+    let supply0 = env.mint_supply();
+    let coin0 = env.data(&env.budget_hunch());
+    let raw0 = env.data(&env.state);
+    let st0 = env.state();
+    assert_eq!(env.token_amount(&env.budget_hunch()), leftover, "DBC's leftover waits in the budget's coin account");
+    assert!(wsol_before > 0 && position_fee > 0, "the surplus waits in the budget and the position has earned");
+
+    // ---- refusals, each on a twin: another position, anyone else, by CPI ----
+    let mut e = env.twin(None);
+    ok(e.send(&[create_ata_ix(&auth, &auth, &wsol_mint())], &[&ak]), "the developer's WSOL account");
+    let dest = e.dev_wsol();
+    let mut ix = e.withdraw_ix(&auth, &dest, 0);
+    ix.accounts[19].pubkey = partner.position;
+    ix.accounts[20].pubkey = partner.nft;
+    assert_eq!(code(e.send(&[cu_limit(400_000), ix], &[&ak])), Some(err::WRONG_ACCOUNT), "the developer's own position");
+    let payer = e.payer.pubkey();
+    ok(e.send_payer(&[create_ata_ix(&payer, &payer, &wsol_mint())]), "the payer's WSOL account");
+    let ix = e.withdraw_ix(&payer, &ata_of(&payer, &wsol_mint()), 0);
+    assert_eq!(code(e.send_payer(&[cu_limit(400_000), ix])), Some(err::NOT_AUTHORITY));
+    let ix = e.via_probe(&e.withdraw_ix(&auth, &dest, 0));
+    assert_eq!(code(e.send(&[cu_limit(400_000), ix], &[&ak])), Some(err::CALLED_BY_CPI));
+    // while Meteora has the pool paused: what DAMM v2's claim does then
+    let mut e = env.twin(None);
+    let mut a = e.svm.get_account(&k.pool).unwrap();
+    a.data[damm::POOL_STATUS] = 1;
+    e.svm.set_account(k.pool, a).unwrap();
+    let paused = e.withdraw(0);
+    println!(
+        "withdraw_budget while the pool is paused: {}",
+        match &paused {
+            Ok(r) => format!("allowed, {:.6} SOL", e.withdraw_event(r).unwrap().amount as f64 / 1e9),
+            Err(f) => format!("refused, {:?}", f.err),
+        }
+    );
+
+    // ---- the withdrawal ----
+    let r = ok(env.withdraw(0), "withdraw_budget on the pool");
+    let ev = env.withdraw_event(&r).expect("event 6");
+    println!(
+        "withdraw_budget on DAMM v2: {:.6} SOL = {:.6} in the budget's WSOL (the surplus) + {:.6} position fee claimed, {} CU",
+        ev.amount as f64 / 1e9,
+        wsol_before as f64 / 1e9,
+        ev.claimed as f64 / 1e9,
+        hunch_cu(&r.logs).unwrap()
+    );
+    assert_eq!(ev.claimed, position_fee, "the claim paid what claim_pool_fees would have");
+    assert_eq!((ev.amount, ev.left), (wsol_before + position_fee, 0));
+    assert_eq!(env.token_amount(&env.budget_wsol), 0);
+    assert_eq!(lam(&env, &auth), dev0 + ev.amount - 5_000, "the developer receives the amount, less the network fee");
+    assert_eq!((env.data(&partner.position), env.data(&partner.nft)), (partner_pos, partner_nft), "the developer's position and its NFT are untouched");
+    assert_eq!(env.data(&k.pool), pool0, "the pool account (reserves, liquidity, price, fee counters) is untouched");
+    assert_eq!((env.token_amount(&k.vault_a), vb0 - env.token_amount(&k.vault_b)), (va0, position_fee), "the vaults paid the position's fee and nothing more");
+    assert_eq!(env.data(&env.budget_hunch()), coin0, "the coin account (DBC's leftover) is left as it was");
+    assert_eq!(env.mint_supply(), supply0);
+    let st = env.state();
+    assert_eq!((st.pool_claimed - st0.pool_claimed, st.claimed), (ev.claimed, st0.claimed));
+    assert_eq!((st.withdrawn, st.withdrawals), (ev.amount, 1));
+    let raw = env.data(&env.state);
+    let pc = std::mem::offset_of!(State, pool_claimed);
+    for i in (0..STATE_LEN).filter(|i| !(1216..1232).contains(i) && !(pc..pc + 8).contains(i)) {
+        assert_eq!(raw[i], raw0[i], "State byte {i} changed");
+    }
+    let want = String::from_utf8(hunch::format::withdraw_line(ev.amount, b"HUNCH").as_bytes().to_vec()).unwrap();
+    assert_eq!(memos(&r.logs), vec![want.clone()]);
+    println!("memo: {want}");
+    let allowed: BTreeSet<String> = ["DAMM v2 claim_position_fee", "Token sync_native", "Token transfer", "Memo", "Hunch event 6"].iter().map(|s| s.to_string()).collect();
+    assert_eq!(withdraw_cpis(&env, &r), allowed);
+
+    // ---- the hourly buy_and_burn_pool after it, on the fees that come after: the deployed build's result ----
+    env.set_clock(H0 + 36 * BAR + 40, 0);
+    env.churn_pool(&t, 2 * SOL);
+    let mut b = env.twin(Some(&old));
+    let mut watched = env.watched();
+    watched.extend([partner.position, partner.nft, ata_of(&t.pubkey(), &wsol_mint()), ata_of(&t.pubkey(), &env.pool().mint)]);
+    for e in [&mut env, &mut b] {
+        e.set_clock(H0 + 36 * BAR + 60, 0);
+    }
+    let (ra, rb) = (env.buy_pool(), b.buy_pool());
+    assert_eq!(ra.is_ok(), rb.is_ok());
+    assert_eq!(env.differences(&b, &watched), Vec::<Address>::new(), "the hourly pool buy after the withdrawal differs from the deployed build");
+    let st = env.state();
+    println!(
+        "hour 6, after the withdrawal: the hourly pool buy {} {:.6} SOL of {:.6} held (the new position fee), burning DBC's leftover too, as the deployed build does",
+        if st.hs_reason == 0 { "bought" } else { "waited" },
+        st.hs_bought as f64 / 1e9,
+        st.hs_held as f64 / 1e9
+    );
+    assert_eq!(st.hs_reason, 0, "it bought");
+    assert_eq!(env.token_amount(&env.budget_hunch()), 0, "and burned everything, the leftover included");
+    for bb in 37..=42 {
+        pool_bar(&mut env, &t, bb, SOL / 2);
+        pool_bar(&mut b, &t, bb, SOL / 2);
+    }
+    for e in [&mut env, &mut b] {
+        e.set_clock(H0 + 42 * BAR + 60, 0);
+    }
+    let (ra, rb) = (env.buy_pool(), b.buy_pool());
+    assert_eq!(ra.is_ok(), rb.is_ok());
+    assert_eq!(env.differences(&b, &watched), Vec::<Address>::new(), "hour 7's pool buy differs from the deployed build");
+    let st = env.state();
+    println!("hour 7: the hourly pool buy {} {:.6} SOL in both builds", if st.hs_reason == 0 { "bought" } else { "waited" }, st.hs_bought as f64 / 1e9);
+    assert_eq!(st.last_buy_hour, ((H0 + 42 * BAR) / 3600) as u32, "hour 7 bought");
+}
+
+/// withdraw_budget while graduating (the curve complete and migrated, before adopt_pool): the DBC claim and
+/// the surplus withdraw_surplus put in the budget; DBC's partner and protocol fees untouched; adopt_pool
+/// still works after it.
+#[test]
+fn a_withdrawal_while_graduating_takes_the_surplus_and_adoption_still_works() {
+    let Graduated { mut env, creator, surplus, .. } = graduated();
+    assert_eq!(env.state().phase, phase::GRADUATING);
+    env.set_clock(H0 + 18 * BAR + 200, 0);
+    let auth = env.authority.pubkey();
+    let p = env.pool().pool;
+    let rd = |env: &Env, at: usize| rd_u64(&env.data(&p), at);
+    let rent = env.svm.minimum_balance_for_rent_exemption(165);
+    let wsol = env.svm.get_account(&env.budget_wsol).unwrap().lamports - rent;
+    let (creator_fee, partner0, protocol0) = (rd(&env, pool::CREATOR_QUOTE_FEE), rd(&env, POOL_PARTNER_QUOTE_FEE), rd(&env, POOL_PROTOCOL_QUOTE_FEE));
+    let claimed0 = env.state().claimed;
+    let dev0 = env.svm.get_account(&auth).unwrap().lamports;
+    let r = env.withdraw(0).unwrap_or_else(|f| panic!("withdraw_budget while graduating: {:?}\n{}", f.err, f.meta.logs.join("\n")));
+    let ev = env.withdraw_event(&r).unwrap();
+    println!(
+        "withdraw_budget while graduating: {:.6} SOL ({:.6} in the WSOL account, of which {:.6} the surplus, + {:.6} creator fee claimed on DBC)",
+        ev.amount as f64 / 1e9,
+        wsol as f64 / 1e9,
+        surplus as f64 / 1e9,
+        ev.claimed as f64 / 1e9
+    );
+    assert_eq!((ev.claimed, ev.amount), (creator_fee, wsol + creator_fee));
+    assert_eq!(env.svm.get_account(&auth).unwrap().lamports, dev0 + ev.amount - 5_000);
+    assert_eq!((rd(&env, POOL_PARTNER_QUOTE_FEE), rd(&env, POOL_PROTOCOL_QUOTE_FEE)), (partner0, protocol0));
+    assert_eq!(env.state().claimed - claimed0, creator_fee);
+    // adopt_pool after it, as usual
+    env.set_clock(H0 + 18 * BAR + 300, 0);
+    ok(env.adopt_pool(creator), "adopt_pool after a withdrawal");
+    assert_eq!(env.state().phase, phase::POOL);
+}
