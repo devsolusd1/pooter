@@ -96,12 +96,16 @@ echo "room      the ProgramData holds $room bytes of code"
 deployed=$(mktemp); solana program dump "$program_id" "$deployed" -u "$RPC" >/dev/null
 now_sha=$(head -c "$room" "$deployed" | sha256sum | cut -c1-64)
 echo "now       sha256 of the deployed code $now_sha (whole ProgramData)"
+# already this build? (after an extend the ProgramData is larger than the binary: compare its first bytes)
+first_sha=$([ "$room" -ge "$size" ] && head -c "$size" "$deployed" | sha256sum | cut -c1-64)
 rm -f "$deployed"
-if [ "$room" = "$size" ] && [ "$now_sha" = "$sha" ]; then echo; echo "Already upgraded: the program on $CLUSTER is this build (sha256 $sha). Nothing to send."; exit 0; fi
+if [ "$first_sha" = "$sha" ]; then echo; echo "Already upgraded: the program on $CLUSTER is this build (sha256 $sha). Nothing to send."; exit 0; fi
 
 lamports() { solana rent "$1" -u "$RPC" --lamports 2>/dev/null | grep -o '[0-9]*' | head -1; }
 per_byte=$(( $(lamports 10045) - $(lamports 45) ))
 extra=$(( size > room ? size - room : 0 ))
+# mainnet's loader refuses an ExtendProgram of fewer than 10,240 bytes (unless it reaches the maximum size)
+if [ "$extra" -gt 0 ] && [ "$extra" -lt 10240 ]; then extra=10240; fi
 rent_extend=0
 if [ "$extra" -gt 0 ]; then rent_extend=$(( $(lamports $((45 + room + extra))) - $(lamports $((45 + room))) )); fi
 rent_buf=$(lamports $((size + 37)))
@@ -113,7 +117,7 @@ cost=$(( rent_extend + fees ))
 sol() { awk -v l="$1" 'BEGIN { printf "%.6f", l / 1e9 }'; }
 echo "== what it needs (rent on $CLUSTER: $(awk -v l="$per_byte" 'BEGIN { printf "%.0f", l / 10000 }') lamports per byte)"
 if [ "$extra" -gt 0 ]; then
-  echo "extend    the new binary is $extra bytes larger than the room: solana program extend $program_id $extra"
+  echo "extend    the new binary needs $(( size - room )) more bytes; the program is extended by $extra (the loader's minimum is 10,240): solana program extend $program_id $extra"
   echo "          rent for the added bytes $(sol $rent_extend) SOL (kept by the program for good)"
 else
   echo "extend    not needed: the binary fits the room ($size of $room bytes)"
