@@ -68,12 +68,12 @@ export function box(top = 0, bottom = ART.length - 1) {
   return { x0, x1, y0, y1, w: x1 - x0 + 1, h: y1 - y0 + 1 };
 }
 
-// draws the art (rows inside b) at a whole-number scale, centred on a size x size RGBA canvas over bg
-// ([r, g, b] or null for transparent)
-export function render(size, scale, b = box(), bg = null) {
-  const px = Buffer.alloc(size * size * 4);
-  if (bg) for (let i = 0; i < size * size; i++) px.set([...bg, 255], i * 4);
-  const ox = Math.round((size - b.w * scale) / 2), oy = Math.round((size - b.h * scale) / 2);
+// draws the art (rows inside b) at a whole-number scale, centred on a size x height RGBA canvas over bg
+// ([r, g, b] or null for transparent); height defaults to size (a square)
+export function render(size, scale, b = box(), bg = null, height = size) {
+  const px = Buffer.alloc(size * height * 4);
+  if (bg) for (let i = 0; i < size * height; i++) px.set([...bg, 255], i * 4);
+  const ox = Math.round((size - b.w * scale) / 2), oy = Math.round((height - b.h * scale) / 2);
   for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
     const p = PAL[ART[y][x]];
     if (!p) continue;

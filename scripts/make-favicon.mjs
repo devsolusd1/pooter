@@ -2,6 +2,7 @@
 //   site/favicon.svg         the monitor with its face, one rect per run of pixels (sharp at any size)
 //   site/favicon.ico         16 and 32 px (the monitor) and 48 px (the whole computer), transparent
 //   site/apple-touch-icon.png  180 px, the whole computer on the site's charcoal (iOS needs it opaque)
+//   site/og.png              1200 x 630, the link preview on X and elsewhere (the whole computer on charcoal)
 // Usage: node scripts/make-favicon.mjs
 import { writeFileSync } from "node:fs";
 import { ART, PAL, box, render, shrink, png } from "../launch/metadata/mascot-art.mjs";
@@ -53,4 +54,7 @@ writeFileSync(new URL("favicon.ico", site), Buffer.concat([head, ...images.map((
 // Apple touch icon: the whole computer at 3x on charcoal
 writeFileSync(new URL("apple-touch-icon.png", site), png(180, 180, render(180, 3, whole, BG)));
 
-console.log(`favicon.svg ${svg.length} bytes (${rects.length} rects), favicon.ico ${offset} bytes (16, 32, 48), apple-touch-icon.png 180 px`);
+// Link preview: the whole computer at 11x (462 x 495) on charcoal
+writeFileSync(new URL("og.png", site), png(1200, 630, render(1200, 11, whole, BG, 630)));
+
+console.log(`favicon.svg ${svg.length} bytes (${rects.length} rects), favicon.ico ${offset} bytes (16, 32, 48), apple-touch-icon.png 180 px, og.png 1200 x 630`);
