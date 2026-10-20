@@ -251,6 +251,38 @@ Para ver na sua máquina antes (não envia nada):
     de hora em hora.
 - Os dois cranks juntos não duplicam nada: o programa recusa e eles simulam antes.
 
+### 3.1b O crank neste PC (a escolha de 20/10/2026)
+
+O crank pode rodar aqui mesmo, no WSL, com `crank/run-pc.sh`: ele roda o `crank.mjs` e o liga de novo
+se ele parar. Só um por PC. Log no WSL em `~/pooter-crank/crank.log`.
+
+1. Chave do crank: `~/hunch-keys/crank.json` (endereço `AMK1zk2drNixv8Rhr9Xo1ZS6ALCswfm8Qk6ZkQs4auRR`).
+   Mande 0,1 SOL para ela.
+2. Você escreve `hunch/crank/.env` (nunca no chat):
+   - `RPC_URL=` o seu RPC;
+   - `CRANK_KEYPAIR=/home/yohn/hunch-keys/crank.json`;
+   - `PROGRAM_ID=CCw2e4MgnZ3opEddVX4oJHkWJye81gARqEC1535hPaY1`.
+3. Teste sem enviar (Ctrl+C para parar):
+
+       wsl -e bash -lc 'bash /mnt/c/Users/John/RafinhaProject/hunch/crank/run-pc.sh'
+
+4. Depois do lançamento, a tarefa do Windows que liga o crank ao entrar no Windows, sem janela
+   (PowerShell, uma vez):
+
+       $a = New-ScheduledTaskAction -Execute "conhost.exe" -Argument '--headless wsl.exe -e bash -lc "bash /mnt/c/Users/John/RafinhaProject/hunch/crank/run-pc.sh send"'
+       $t = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+       $c = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1)
+       Register-ScheduledTask -TaskName "Pooter crank" -Action $a -Trigger $t -Settings $c
+       Start-ScheduledTask -TaskName "Pooter crank"
+
+   Para parar: `Stop-ScheduledTask -TaskName "Pooter crank"` e
+   `wsl -e bash -lc 'pkill -f run-pc.sh; pkill -f crank.mjs'`.
+
+O PC precisa: nunca dormir na tomada (Configurações → Sistema → Energia: suspender "Nunca"), ficar
+com você logado (tela bloqueada pode), internet estável. Se ele desligar ou reiniciar perto da virada
+da hora, aquela hora conta como perdida no placar; depois de reiniciar, o crank só volta quando você
+entrar no Windows. Uma reserva numa VPS (seção 3.1, `TICK_FROM=14`) cobre essas horas.
+
 ### 3.2 O site
 
 - Em `site/config.js`, preencha:
