@@ -65,11 +65,13 @@ p { margin: 0; }
 .home { display: flex; align-items: center; gap: 10px; border-radius: 10px; }
 .mark { display: block; width: 26px; height: 26px; border-radius: 7px; image-rendering: pixelated; background: var(--tile); box-shadow: 0 0 0 1px var(--line); }
 .name { font-weight: 700; font-size: 23px; letter-spacing: -0.04em; line-height: 1; }
-.theme { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--edge); background: var(--tile); }
+.theme { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--edge); background: var(--tile); }
 .theme:hover { border-color: var(--edge-hi); }
 .theme svg { width: 18px; height: 18px; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .theme .moon, [data-theme="light"] .theme .sun { display: none; }
 [data-theme="light"] .theme .moon { display: block; }
+.social { color: var(--ink); }
+.theme svg.x { width: 16px; height: 16px; fill: currentColor; stroke: none; }
 
 /* ---------- pills: what you can press ---------- */
 .pill {

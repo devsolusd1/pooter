@@ -10,13 +10,13 @@
 // file behind the uri is immutable too once it is an IPFS address, so nothing in it may be left unfilled.
 // Exit code 0 when there is nothing to fix.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const TOKEN = join(HERE, "../token.json"), META = join(HERE, "metadata.json"), IMAGE = join(HERE, "image.png");
+const TOKEN = join(HERE, "../token.json"), META = join(HERE, "metadata.json"), IMAGES = ["image.jpg", "image.png"].map((f) => join(HERE, f)).filter((f) => existsSync(f)); // the uploaded token image (image.jpg, as on Pinata) or the generated one
 const SERVED = process.argv.includes("--served");
 
 // Metaplex Token Metadata refuses longer values (NameTooLong, SymbolTooLong, UriTooLong); it counts bytes
@@ -80,8 +80,8 @@ if (SERVED && typeof T.uri === "string" && /^https:\/\//.test(T.uri)) {
     if (typeof img === "string") fix.push(`served: the image ${got.image} did not load (${img})`);
     else {
       const sha = (b) => createHash("sha256").update(b).digest("hex");
-      const same = sha(img.body) === sha(readFileSync(IMAGE));
-      (same ? ok : fix).push(`served: the image loads (${img.type}, ${img.body.length} bytes) and ${same ? "is" : "is NOT"} this folder's image.png`);
+      const same = IMAGES.some((f) => sha(img.body) === sha(readFileSync(f)));
+      (same ? ok : fix).push(`served: the image loads (${img.type}, ${img.body.length} bytes) and ${same ? "is" : "is NOT"} this folder's image.jpg or image.png`);
     }
   }
 } else if (SERVED) fix.push("served: token.json has no https uri to fetch yet");

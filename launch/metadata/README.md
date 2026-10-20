@@ -1,6 +1,7 @@
 # Imagem e metadata do token
 
-- `image.png`: a imagem do token, 1000 x 1000: o mascote do site, o computador 8-bit, no cinza do site. Sem texto: serve para qualquer nome. Feita por `make-mascot-image.mjs`.
+- `image.jpg`: a imagem do token que está na Pinata (CID bafkreidojxzeld…thscq), 282 x 282.
+- `image.png`: o mascote em 1000 x 1000, feito por `make-mascot-image.mjs`.
 - `preview/`: como ela fica em 96, 48 e 32 px, em círculo, sobre fundo escuro e claro. Só para conferir; não sobe.
 - `image-brain.png` e `image-brain.svg`: a opção anterior, a foto do cérebro (13 x 13 quadrados com os pesos reais do ensaio). Se preferir ela, suba esta no lugar de `image.png`.
 - `metadata.json`: o arquivo que os terminais leem (nome, símbolo, descrição, imagem, site, redes).
