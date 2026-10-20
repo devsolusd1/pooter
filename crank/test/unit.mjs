@@ -83,7 +83,7 @@ check(t0.budget === 132_000_000n, "at t=0 the budget gets 13.2% of the trade (th
 // ---- the launch tool's decisions ----
 const T = JSON.parse(readFileSync(new URL("../../launch/token.json", import.meta.url), "utf8"));
 const probs = tokenProblems(T);
-check(probs.length === 1 && /uri is not set/.test(probs[0]), `token.json: only the uri is missing (${probs.length} problem(s))`);
+check(probs.length === 0 && tokenProblems({ ...T, uri: null }).length === 1, `token.json: ready, and only a missing uri would stop it (${probs.length} problem(s))`);
 check(tokenProblems({ ...T, uri: "https://x.example/m.json", creatorSharePct: 34 }).some((p) => /creatorSharePct/.test(p)), "token.json: a creator share the program would refuse is caught");
 check(tokenProblems({ ...T, uri: "http://127.0.0.1:1/m.json" }).length === 1 && tokenProblems({ ...T, uri: "http://127.0.0.1:1/m.json" }, { local: true }).length === 0, "a local uri only on a local rehearsal");
 check(sendDecision({ send: false, step: "", next: "config", notReady: false }).go === false, "no SEND: nothing sent");

@@ -150,12 +150,17 @@ function parseArgs(argv) {
   return a;
 }
 
+// hunch/crank/.env first, then RPC_URL alone from hunch/launch/.env, so on a PC that runs both the node
+// is written in one place (an empty value counts as not set)
 function readDotEnv() {
-  const p = join(HERE, ".env");
-  if (!existsSync(p)) return;
-  for (const line of readFileSync(p, "utf8").split(/\r?\n/)) {
-    const m = line.match(/^\s*(?:export\s+)?([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
-    if (m && m[1] !== "SEND" && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+  for (const [p, only] of [[join(HERE, ".env"), null], [join(HERE, "..", "launch", ".env"), ["RPC_URL"]]]) {
+    if (!existsSync(p)) continue;
+    for (const line of readFileSync(p, "utf8").split(/\r?\n/)) {
+      const m = line.match(/^\s*(?:export\s+)?([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+      if (!m || m[1] === "SEND" || (only && !only.includes(m[1]))) continue;
+      const v = m[2].replace(/^["']|["']$/g, "");
+      if (v && !process.env[m[1]]) process.env[m[1]] = v;
+    }
   }
 }
 
