@@ -25,6 +25,7 @@
 //   TICK_FROM, TICK_JITTER   the tick is tried at a random second in [TICK_FROM, TICK_FROM + TICK_JITTER]
 //                    of each bar (defaults 2 and 8). On a backup host, set TICK_FROM=14 so that it only
 //                    acts when the first host did not.
+//   BUYS=off         ticks only, no hourly buy (also: the file ~/pooter-crank/buys-off, read every hour)
 //   BUY_DELAY        seconds after the hour's boundary tick before the buy is tried (default 20), plus a
 //   BUY_JITTER       random 0 to BUY_JITTER seconds (default 45), after which State is read again at the
 //                    newest bank, so that two crankers rarely both try the hour's buy (the program refuses a
@@ -304,6 +305,13 @@ async function main() {
   // ---- once per hour, after the boundary tick: buy_and_burn ----
   async function doBuy(c) {
     const hour = Math.floor(c.unixTimestamp / HOUR);
+    // buys paused by the developer: BUYS=off, or the file ~/pooter-crank/buys-off (looked at every hour,
+    // so creating or deleting it takes effect without a restart). Ticks go on; nothing is bought.
+    if (process.env.BUYS === "off" || existsSync(join(process.env.HOME ?? "", "pooter-crank", "buys-off"))) {
+      done.buy.add(hour);
+      say({ chain: c.unixTimestamp, action: "buy", result: "paused", detail: "buys are paused by the developer (BUYS=off or ~/pooter-crank/buys-off); nothing sent" });
+      return;
+    }
     const signal = decodeSignal((await connection.getAccountInfo(A.signal))?.data);
     if (signal && signal.unixHour !== hour) {
       // the boundary tick landed but made no open call for this hour (the first tick of all is only a
