@@ -90,6 +90,8 @@ export function createStateHandler({ rpcUrl, config = CONFIG, fetchImpl = fetch 
 
 let own;
 export default async function handler(req, res) {
-  own ??= createStateHandler({ rpcUrl: process.env.RPC_URL?.trim() || null });
+  // RPC_URL, or the other names an RPC address is often saved under in Vercel
+  const rpc = ["RPC_URL", "SOLANA_RPC_URL", "HELIUS_RPC_URL", "HELIUS_RPC", "RPC"].map((k) => process.env[k]?.trim()).find(Boolean);
+  own ??= createStateHandler({ rpcUrl: rpc || null });
   return own(req, res);
 }
