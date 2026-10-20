@@ -8,13 +8,13 @@ export const CONFIG = {
   name: "Pooter",
   ticker: "POOTER",
   // The program (it stays upgradeable: the developer can update it).
-  programId: null,
+  programId: "CCw2e4MgnZ3opEddVX4oJHkWJye81gARqEC1535hPaY1",
   // The token, a plain SPL token with immutable metadata.
-  mint: null,
+  mint: "GWfA58i1zzcwgB4C5UCrRoSod35on5mrCPipqM8poot",
   // Its Meteora Dynamic Bonding Curve pool.
-  pool: null,
+  pool: "2QwsNBQWj9rtCr2oMvoB8Jsrn1gPc5PERXi23Us2hYee",
   // The developer's wallet, shown beside their stated intention (null: not shown).
-  developer: null,
+  developer: "G3gsMr4yEdxDjuCD4v7nJjKKrHig7Ytt6ubJ6LkC2bgm",
   // Where the reader answers, and how often the page asks it (it caches for about 10 seconds).
   api: "/api/state",
   refreshMs: 15_000,
