@@ -33,3 +33,14 @@ O nome, o símbolo e o `uri` ficam gravados para sempre (`metadataCanChange: fal
 
 - nunca apague (unpin) os dois arquivos da Pinata;
 - se mudar a imagem, o nome ou qualquer campo **antes** do lançamento, suba de novo: o CID muda, e o link no `token.json` também.
+
+## Onde o metadata está (escolha de 20/10/2026)
+
+O `metadata.json` não foi para a Pinata: o próprio site serve uma cópia em
+`https://www.thepooter.fun/metadata.json` (o arquivo `site/metadata.json`), e esse é o `uri` do
+`token.json`. Esse endereço fica gravado na chain para sempre, então:
+
+- nunca mude nem apague `site/metadata.json` depois do lançamento;
+- mantenha o domínio thepooter.fun renovado;
+- a imagem continua na Pinata (o CID no `image`): nunca tire o pin dela.
+

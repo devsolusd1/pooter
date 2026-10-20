@@ -4,7 +4,11 @@
   "installCommand": "",
   "outputDirectory": "site",
   "redirects": [
-    { "source": "/variants/:path*", "destination": "/", "permanent": false },
+    {
+      "source": "/variants/:path*",
+      "destination": "/",
+      "permanent": false
+    },
     {
       "source": "/:path((?!api(?:/|$)|\\.well-known(?:/|$))(?:[^/]+/)*[^/.]+)",
       "destination": "/:path*/",
@@ -12,6 +16,23 @@
     }
   ],
   "functions": {
-    "api/*.js": { "maxDuration": 15 }
-  }
+    "api/*.js": {
+      "maxDuration": 15
+    }
+  },
+  "headers": [
+    {
+      "source": "/metadata.json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        }
+      ]
+    }
+  ]
 }
