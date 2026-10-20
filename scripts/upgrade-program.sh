@@ -97,7 +97,8 @@ deployed=$(mktemp); solana program dump "$program_id" "$deployed" -u "$RPC" >/de
 now_sha=$(head -c "$room" "$deployed" | sha256sum | cut -c1-64)
 echo "now       sha256 of the deployed code $now_sha (whole ProgramData)"
 # already this build? (after an extend the ProgramData is larger than the binary: compare its first bytes)
-first_sha=$([ "$room" -ge "$size" ] && head -c "$size" "$deployed" | sha256sum | cut -c1-64)
+first_sha=""
+if [ "$room" -ge "$size" ]; then first_sha=$(head -c "$size" "$deployed" | sha256sum | cut -c1-64); fi
 rm -f "$deployed"
 if [ "$first_sha" = "$sha" ]; then echo; echo "Already upgraded: the program on $CLUSTER is this build (sha256 $sha). Nothing to send."; exit 0; fi
 
