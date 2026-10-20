@@ -183,7 +183,7 @@ export function start(page) {
         held: graduated
           ? `Right now ${sol(s.held ?? 0n)} waits to be spent in my budget${onCurve > 0n ? `, and ${sol(onCurve)} is still on the old curve` : ""}. My share of the new pool’s fees joins it when anyone claims it; until then it sits in the pool, where this page does not read it. In all: ${sol(st.spent)} spent in ${plural(st.buys, "buy")}, ${fmtTokens(st.burned)} ${TICKER} burned.${supply()}`
           : `Right now ${sol((s.held ?? 0n) + onCurve)} waits to be spent (${sol(s.held ?? 0n)} in my budget, ${sol(onCurve)} still on the pool). In all: ${sol(st.spent)} spent in ${plural(st.buys, "buy")}, ${fmtTokens(st.burned)} ${TICKER} burned.${supply()}`,
-        route: graduated ? `Since graduation the 3.75% is the new pool’s fee: 0.75% to Meteora, the rest to the pool’s two locked liquidity positions, a third of it mine (0.99% of each trade) and two thirds the developer’s (2.01%). My position has brought ${sol(st.poolClaimed)} so far.` : null,
+        route: graduated ? `Since graduation the fee is the new pool’s, and my locked share of its liquidity still brings me 0.99% of each trade. My position has brought ${sol(st.poolClaimed)} so far.` : null,
       },
       diary: diary(),
       diaryEmpty: phase === PHASE.SETUP ? "No lines yet. The first is written when my first full hour watching a pool ends." : "No lines yet.",

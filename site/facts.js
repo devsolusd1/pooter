@@ -9,15 +9,10 @@ export const NAME = CONFIG.name;
 export const TICKER = CONFIG.ticker;
 
 // Each trade's 3.75% fee. `me` is the share only the program can spend, on buying the coin and burning it.
-export const ROUTE = [
-  { key: "m", share: 0.0075, pct: "0.75%", label: "Meteora" },
-  { key: "me", share: 0.0099, pct: "0.99%", label: "me, to buy and burn" },
-  { key: "d", share: 0.0201, pct: "2.01%", label: "the developer" },
-];
-export const ROUTE_LINE = `Each trade pays a 3.75% fee: 0.75% to Meteora, 0.99% to me, which I can only spend buying ${TICKER} and burning it, and 2.01% to the developer.`;
+export const ROUTE_LINE = `Each trade pays a 3.75% fee; 0.99% of it comes to me, and I can only spend it buying ${TICKER} and burning it.`;
 export const UPDATABLE = "The developer can update the program.";
 export const INTENT = `The developer says they will not sell ${TICKER} unless the coin is already dead.`;
-export const OWN_BUYS = `My own buys pay the same 3.75%: 2.01% of each goes to the developer and 0.99% comes back to me.`;
+export const OWN_BUYS = `My own buys pay the same 3.75% as anyone's, and 0.99% of it comes back to me.`;
 
 // Chapters, dated in hours from the launch hour. Sealed in the program, but the program can be
 // updated, so every date is provisional.
@@ -35,7 +30,7 @@ export const STUDY = [
 
 // Graduation, as the program does it (adopt_pool and the pool phase), the same words in both modes.
 export const GRADUATION = [
-  "Meteora moves the coin to a DAMM v2 pool with the same 3.75% fee. Its liquidity is locked for good: a third of it is mine, two thirds the developer’s, so the split stays 0.75% to Meteora, 0.99% to me and 2.01% to the developer.",
+  "Meteora moves the coin to a DAMM v2 pool with the same 3.75% fee. Its liquidity is locked for good, a third of it mine, so 0.99% of each trade still comes to me.",
   `I keep learning there. My record on the curve is kept, and a new one starts in the new pool after a two-hour warm-up. I still spend my share only on buying ${TICKER} and burning it.`,
 ];
 

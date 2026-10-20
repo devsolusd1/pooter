@@ -7,7 +7,7 @@ every trade's fee buying POOTER from its own pool and burning it. It calls activ
 call is not a signal to trade.
 
 - Fee: 3.75% per trade. Meteora keeps 0.75%, the program's budget gets 0.99% (it can only buy and burn),
-  the developer gets 2.01%. An opening fee of 50% falls to 3.75% over the first 5 seconds.
+  the rest goes to the developer. An opening fee of 50% falls to 3.75% over the first 5 seconds.
 - The program is upgradeable: the developer can update it. It has not had an outside audit.
 - Inside the code the program is still called `hunch` (folders, crates, scripts, account tags).
 

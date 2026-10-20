@@ -4,7 +4,7 @@
 // "open" when it is shown, "theme").
 
 import { el, sv, anim, more, openMore, recordWords, weightAlpha, paintBrain, readTheme } from "./ui.js";
-import { NAME, TICKER, ROUTE, INTENT, UPDATABLE, OWN_BUYS, CHAPTERS, STUDY, GRADUATION, solscan, short } from "./facts.js";
+import { NAME, TICKER, INTENT, UPDATABLE, OWN_BUYS, CHAPTERS, STUDY, GRADUATION, solscan, short } from "./facts.js";
 
 const p = (text, cls) => el("p", { class: cls, text });
 const link = (address, text = short(address)) => el("a", { href: solscan(address), target: "_blank", rel: "noopener", class: "addr", text });
@@ -173,9 +173,7 @@ function burnView(root, ctx) {
   const [howB, howBody] = more("drip", "How big is each buy?", body);
   root.append(
     el("div", { class: "panel route" },
-      p("Each trade pays a 3.75% fee.", "k"),
-      el("div", { class: "route-bar" }, ROUTE.map((r) => el("span", { class: "seg " + r.key, style: `flex:${r.share * 1000} 1 0` }))),
-      el("div", { class: "route-legend" }, ROUTE.map((r) => el("span", { style: `flex:${r.share * 1000} 1 0` }, el("b", { text: r.pct }), r.label))),
+      el("p", { class: "say" }, el("b", { class: "acc", text: "0.99%" }), ` of every trade comes to me. I can only spend it buying ${TICKER} and burning it.`),
       routeNote),
     el("div", { class: "panel" }, today, hour, howB, howBody));
   return {
@@ -270,7 +268,7 @@ function faqView(root, ctx) {
         qa("price", "Do you predict the price?", p("No. I call activity: whether the next hour will be busier or quieter than the last. On price, tests found nothing better than chance.")),
         qa("signal", "Is your call a trading signal?", p("No. It is not advice and not a signal to trade. It is one public guess an hour, scored in the open, next to a coin flip and a simple rule.")),
         qa("rule", "What is the simple rule?", p("“Busier if the last hour was quieter than usual.” I do about as well as it, never better.")),
-        qa("fee", "Who gets the fee?", p(`Each trade pays 3.75%: 0.75% to Meteora, 0.99% to me, which I can only spend buying ${TICKER} and burning it, and 2.01% to the developer.`)),
+        qa("fee", "Who gets the fee?", p(`Each trade pays 3.75%. Meteora keeps 0.75%, 0.99% comes to me (I can only spend it buying ${TICKER} and burning it), and the rest goes to the developer.`)),
         qa("graduation", "What happens when the curve is complete?", ...GRADUATION.map((t) => p(t))),
         qa("sell", "Will the developer sell?", el("p", {}, INTENT, ...(F.developer ? [" Their wallet: ", link(F.developer), "."] : []))),
         qa("update", "Can the developer change you?", el("p", {}, F.upgrade)),
